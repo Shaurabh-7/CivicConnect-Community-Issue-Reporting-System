@@ -1,0 +1,819 @@
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 1 of 24 
+ 
+CIVICCONNECT 
+Municipality-Level Civic Issue Reporting System 
+Technical Specification & System Workflow 
+Group: CodeCrafters 
+Group Leader: Shaurabh Koirala 
+Module: CS5054NT Advanced Programming and Technologies 
+  
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 2 of 24 
+1. Project Overview 
+CivicConnect is a web-based civic issue reporting platform built for municipalities in Nepal. It provides a 
+structured digital channel through which citizens can report local problems (road damage, water supply 
+issues, sanitation, electricity, corruption, and so on) directly to the authority responsible for resolving 
+them — their municipality admin. The platform is inspired by pratipakshya.org but scoped to the 
+nagarpalika level so that every complaint has a clear, accountable recipient. 
+The system is built around four roles — Guest, Citizen, Municipality Admin, and Super Admin — each with 
+distinct capabilities enforced by a servlet filter. Complaints are public immediately after submission (no 
+pre-approval queue), citizens can upvote any complaint across any municipality (national visibility), and 
+each municipality's admin manages only their own municipality's complaints and users. 
+1.1 Group Details 
+Field Value 
+Group Name CodeCrafters 
+Group Leader Shaurabh Koirala 
+Members Shaurabh Koirala, Pratik Bhattarai, Aayushma Karki, Prajwal Kafle, 
+Ujina Kumari Thandar, Bibek Bishwakarma 
+Module CS5054NT Advanced Programming and Technologies 
+ 
+2. Technology Stack 
+The stack is chosen to satisfy the coursework requirements (Java EE, JSP, MVC, plain CSS, MySQL) while 
+using modern, supported versions. 
+Component Choice 
+Language Java 21 (latest LTS) 
+Application Server Apache Tomcat 10 / 11 (Jakarta Servlet API 5+) 
+Servlet API jakarta.servlet.* (NOT javax.servlet.*) 
+Build Tool Apache Maven 
+View Layer JavaServer Pages (JSP) with JSTL tag library 
+Styling Plain CSS only (Flexbox + media queries, no Bootstrap/Tailwind) 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 3 of 24 
+Component Choice 
+Client-Side Scripting Minimal JavaScript (instant form feedback only) 
+Database MySQL (utf8mb4 charset) 
+Data Access Plain JDBC with PreparedStatement (no ORM) 
+Connection Strategy New connection per request (simple, coursework-friendly) 
+Password Hashing BCrypt (via jBCrypt library) or AES encryption 
+Session Timeout 60 minutes of inactivity 
+Remember Me Cookie 7 days 
+Architecture Model-View-Controller (MVC) 
+Version Control Git + public GitHub repository 
+IDE IntelliJ IDEA  
+DB Tool MySQL Workbench 
+Deployment Target Localhost (for coursework demo) 
+ 
+3. System Architecture 
+The application follows the Model-View-Controller (MVC) pattern with supporting packages for DAO, 
+service logic, utilities, and filters. HTTP requests enter through servlets (controllers), which delegate 
+business logic to the service layer, which in turn uses DAO classes to read from and write to MySQL. 
+Controllers then forward to JSP views that render the response. 
+3.1 Request Lifecycle 
+1. The browser sends an HTTP request to a URL (e.g., /citizen/submit-complaint). 
+2. AuthFilter intercepts the request, checks session and role, and either allows the request to 
+proceed or redirects to Login / Unauthorized pages. 
+3. The matching Servlet (Controller) receives the request, extracts form parameters, and calls the 
+appropriate Service method. 
+4. The Service applies business rules (e.g., "only allow edit if status is Pending") and calls one or 
+more DAO methods. 
+5. Each DAO method opens a JDBC connection, executes a PreparedStatement, maps the result 
+into a Model object, and closes the connection. 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 4 of 24 
+6. The Servlet sets request attributes and forwards to a JSP view, which renders HTML using JSTL 
+tags. 
+7. The rendered HTML is returned to the browser. 
+3.2 Package Structure 
+com.civicconnect/ 
+├── model/      — Plain Java classes (User, Complaint, Municipality, Category, Vote) 
+├── dao/        — Data access objects (UserDao, ComplaintDao, VoteDao, ...) 
+├── service/    — Business logic (AuthService, ComplaintService, ReportService, ...) 
+├── controller/ — Servlets (LoginServlet, RegisterServlet, ComplaintServlet, ...) 
+├── filter/     — AuthFilter for role-based access control 
+└── util/       — DBUtil, PasswordUtil (BCrypt), Validator, FileUploadUtil, DateUtil 
+3.3 Project Folder Layout 
+civicconnect/ 
+├── pom.xml                          (Maven build config) 
+├── src/main/java/com/civicconnect/  (all Java source) 
+├── src/main/webapp/ 
+│   ├── WEB-INF/ 
+│   │   ├── web.xml                  (servlet mappings, session timeout, filter) 
+│   │   ├── db.properties            (DB host/user/pass, read at startup) 
+│   │   └── views/                   (all JSP files — protected from direct access) 
+│   ├── css/                         (stylesheet.css, responsive rules) 
+│   ├── js/                          (minimal JS for form feedback) 
+│   ├── images/                      (logo, static UI images) 
+│   └── uploads/complaints/          (user-uploaded complaint photos) 
+└── civicconnect.sql                 (DB setup script — tables + Super Admin seed) 
+ 
+4. Database Design 
+The database consists of five core tables. Foreign keys use ON DELETE CASCADE at the database level so 
+that removing a parent row automatically cleans up dependent rows (e.g., deleting a complaint removes 
+all its votes). Status, role, and province are stored as VARCHAR columns with allowed values enforced in 
+Java code (via constant classes) for flexibility. 
+4.1 Tables Overview 
+Table Purpose 
+municipalities Stores all municipalities registered by the Super Admin. Only active 
+municipalities with an assigned admin appear in the citizen 
+registration dropdown. 
+categories Stores complaint categories. Managed (add/edit/delete) exclusively 
+by the Super Admin. 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 5 of 24 
+Table Purpose 
+users Stores every user across all three authenticated roles (citizen, 
+municipality_admin, super_admin). Distinguished by the role column. 
+complaints Stores all submitted complaints with status, vote count, optional 
+photo path, and anonymous flag. 
+votes Records which citizen supported which complaint. Unique constraint 
+on (user_id, complaint_id) prevents duplicate votes. 
+4.2 Table Schemas 
+municipalities 
+id              INT AUTO_INCREMENT PRIMARY KEY 
+name            VARCHAR(150) NOT NULL UNIQUE 
+district        VARCHAR(100) NOT NULL 
+province        VARCHAR(50)  NOT NULL   -- one of Nepal's 7 provinces 
+status          VARCHAR(20)  NOT NULL DEFAULT 'active'   -- active | inactive 
+created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP 
+categories 
+id              INT AUTO_INCREMENT PRIMARY KEY 
+name            VARCHAR(100) NOT NULL UNIQUE 
+created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP 
+users 
+id              INT AUTO_INCREMENT PRIMARY KEY 
+full_name       VARCHAR(100) NOT NULL 
+email           VARCHAR(150) NOT NULL UNIQUE 
+phone           VARCHAR(20)  NOT NULL UNIQUE 
+password_hash   VARCHAR(255) NOT NULL          -- BCrypt hash 
+role            VARCHAR(30)  NOT NULL          -- citizen | municipality_admin | 
+super_admin 
+municipality_id INT          NULL              -- NULL for super_admin 
+ward_number     INT          NULL              -- required for citizen only 
+status          VARCHAR(20)  NOT NULL DEFAULT 'active'   -- active | inactive 
+created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP 
+  
+FOREIGN KEY (municipality_id) REFERENCES municipalities(id) ON DELETE CASCADE 
+complaints 
+id              INT AUTO_INCREMENT PRIMARY KEY 
+user_id         INT          NOT NULL          -- submitter 
+municipality_id INT          NOT NULL          -- scope 
+category_id     INT          NOT NULL 
+title           VARCHAR(200) NOT NULL 
+description     TEXT         NOT NULL 
+ward_number     INT          NOT NULL 
+location        VARCHAR(255) NOT NULL          -- free-text location description 
+image_path      VARCHAR(255) NULL              -- relative path to uploaded photo 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 6 of 24 
+is_anonymous    BOOLEAN      NOT NULL DEFAULT FALSE 
+status          VARCHAR(20)  NOT NULL DEFAULT 'pending'  -- pending | in_progress | 
+resolved 
+vote_count      INT          NOT NULL DEFAULT 0          -- denormalized for sorting 
+contact_email   VARCHAR(150) NULL 
+created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP 
+updated_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
+  
+FOREIGN KEY (user_id)         REFERENCES users(id)          ON DELETE CASCADE, 
+FOREIGN KEY (municipality_id) REFERENCES municipalities(id) ON DELETE CASCADE, 
+FOREIGN KEY (category_id)     REFERENCES categories(id)     ON DELETE RESTRICT 
+votes 
+id              INT AUTO_INCREMENT PRIMARY KEY 
+user_id         INT          NOT NULL 
+complaint_id    INT          NOT NULL 
+created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP 
+  
+UNIQUE KEY unique_vote (user_id, complaint_id), 
+FOREIGN KEY (user_id)      REFERENCES users(id)       ON DELETE CASCADE, 
+FOREIGN KEY (complaint_id) REFERENCES complaints(id)  ON DELETE CASCADE 
+4.3 Relationship Summary 
+• One municipality has at most one active municipality_admin (strict 1:1) and many citizens. 
+• One user (citizen) submits many complaints and may cast many votes (one vote per complaint). 
+• One complaint belongs to exactly one category, one municipality, and one submitter user, and 
+accumulates many votes. 
+• Deleting a municipality cascades through its admin, citizens, complaints, and votes — but the 
+platform avoids hard deletion of municipalities by offering only soft delete (deactivate) through 
+the UI. 
+4.4 Default Seed Data 
+Only a minimal seed is inserted during initialization: 
+• Nine complaint categories: Road/Infrastructure, Water Supply, Sanitation, Electricity, Health, 
+Education, Corruption/Misconduct, Public Safety, Others. 
+• One Super Admin account (email: admin@civicconnect.com, default password pre-hashed with 
+BCrypt). 
+• No municipalities, no municipality admins, and no citizens are pre-created — the Super Admin 
+creates them after first login. 
+ 
+5. User Roles 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 7 of 24 
+The system has one unauthenticated role and three authenticated roles. Each authenticated user has 
+exactly one role, determined by the role column in the users table. 
+Role Scope Can Do Cannot Do 
+Guest Public, read-only View complaints, 
+search, register, login 
+Submit, vote, access any 
+dashboard 
+Citizen One municipality 
+(registration); vote 
+anywhere 
+Submit/edit/delete own 
+complaints (Pending 
+only), upvote any 
+complaint, edit own 
+profile 
+Change status, manage 
+users, access admin 
+pages 
+Municipality Admin Their assigned 
+municipality only 
+View/filter complaints, 
+update status, delete 
+complaints, manage 
+citizens, view reports 
+Touch other 
+municipalities, create 
+admins, manage 
+municipalities 
+Super Admin Platform-wide Add/edit/deactivate 
+municipalities and 
+admins, manage 
+categories 
+Submit complaints, 
+handle individual 
+complaints, register as 
+citizen 
+ 
+6. Authentication & Authorization 
+6.1 Password Hashing 
+All passwords are hashed using BCrypt before storage. BCrypt is the industry standard — it embeds a per-
+user salt into the hash and is resistant to brute-force attacks thanks to its tunable work factor. At 
+registration, the plaintext password is passed through BCrypt.hashpw() and the resulting hash is stored in 
+users.password_hash. At login, BCrypt.checkpw() compares the entered plaintext against the stored hash. 
+6.2 Session Management 
+• Sessions are created on successful login using Java's built-in HttpSession. 
+• Session attributes set after login: userId, userName, userRole, municipalityId (null for super 
+admin), municipalityName, wardNumber (citizens only). 
+• Session timeout is 60 minutes of inactivity (configured in web.xml via <session-timeout>). 
+• On expiry, the next request is redirected to the Login Page with the message "Your session has 
+expired. Please log in again." 
+6.3 Remember Me Cookie 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 8 of 24 
+If the user checks Remember Me at login, a cookie storing only their email (never the password) is set 
+with a 7-day expiry. On subsequent visits, the email field on the Login Page is pre-filled from this cookie. 
+6.4 AuthFilter (Servlet Filter) 
+The AuthFilter, configured in web.xml, intercepts every request to protected URLs (/citizen/*, /admin/*, 
+/superadmin/*) and enforces role-based access control before any controller runs. 
+Filter Decision Flow 
+8. Is the URL public (home, login, register, about, CSS/JS/images)? → Allow through without 
+checks. 
+9. Does an HttpSession exist for the request? → If not, redirect to /login with message "Please log 
+in to access this page." 
+10. Read userRole from the session and check it against the URL prefix: 
+◦ /citizen/* requires role = citizen 
+◦ /admin/* requires role = municipality_admin 
+◦ /superadmin/* requires role = super_admin 
+11. Mismatch? → Redirect to /unauthorized (Unauthorized Access page). 
+12. All checks pass? → chain.doFilter(request, response) lets the request proceed to the 
+controller. 
+6.5 Post-Login Role-Based Redirect 
+After successful login, the Login servlet reads the user's role from the DB and redirects: 
+• citizen → /citizen/dashboard 
+• municipality_admin → /admin/dashboard 
+• super_admin → /superadmin/dashboard 
+6.6 Form Validation Strategy 
+Validation happens at two layers. Client-side JavaScript gives instant feedback on field format (email 
+shape, password strength, required fields) for better UX. Server-side Java validation in the Validator utility 
+class is always the source of truth — the server never trusts client input and re-validates every field before 
+it reaches the DAO layer. If any server-side check fails, the form is re-rendered with error messages and 
+previously entered data retained (except password fields). 
+ 
+7. Guest Workflows 
+A guest is any unauthenticated visitor. Guests have read-only access to public content. 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 9 of 24 
+7.1 Home Page (Public Landing) 
+The Home Page is the primary surface of the platform. Its layout is inspired by pratipakshya.org but scaled 
+down to a clean, focused listing. 
+Navigation Bar (Guest) 
+Home  |  About  |  Login  |  Register 
+Page Sections 
+• Tagline: "Citizen Voice for Better Governance in Your Municipality." 
+• Two tabs above the complaint list: 
+◦ Latest tab (default) — sorted by created_at DESC (newest first) 
+◦ Trending tab — sorted by vote_count DESC (most supported first) 
+• Keyword search bar — searches across complaint title and description. 
+• Municipality filter dropdown — lists all active municipalities; default is "All Municipalities" 
+(national view). 
+• Complaint list — 20 complaints per page with pagination controls at the bottom. 
+Each Complaint Card Shows 
+• Title (clickable → detail page) 
+• Short description (first 100–150 characters, truncated) 
+• Category tag 
+• Municipality name + ward number 
+• Status badge (Pending / In Progress / Resolved, color-coded) 
+• Vote/support count 
+• Submitter's display name — or "Anonymous" if is_anonymous = true 
+• Date posted 
+• Note: photo thumbnails are NOT shown on cards; images appear on the detail page only. 
+7.2 Complaint Detail Page 
+Reached by clicking any complaint title. Displays: 
+• Complaint title (large heading) 
+• Full description 
+• Photo evidence (if image_path is not null) — rendered inline from /uploads/complaints/ 
+• Category, Municipality, Ward, Location 
+• Status badge 
+• Vote/support count 
+• Date submitted and last updated date 
+• Submitted by (display name or "Anonymous") 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 10 of 24 
+• "Support This Issue" button — clicking it as a guest redirects to Login with message "Please log 
+in to support this issue." 
+7.3 About Page 
+• Explains what CivicConnect is and why it was built. 
+• Summarizes the process: citizens report → admin reviews → status updates → resolution. 
+• States the platform's political neutrality. 
+ 
+8. Citizen Workflows 
+A citizen is a registered user tied to exactly one municipality. Registration is instant, free, and requires no 
+admin approval. Logged-in citizens see the same public home page a guest does, but gain the ability to 
+submit complaints, upvote any complaint, and manage their own submissions. 
+8.1 Registration 
+The guest clicks "Register" and lands on register.jsp. The form contains: 
+Field Type Validation 
+Full Name Text, required Letters and spaces only, min 2 characters 
+Email Email, required Valid format; must be unique across users 
+Phone Text, required 10 digits starting with 97 or 98; must be unique 
+Municipality Dropdown, required Populated only with municipalities that have an 
+active admin; if none available, registration is 
+blocked with a message 
+Ward Number Number, required Positive integer, 1–33 
+Password Password, required Min 8 chars, at least one uppercase, one 
+lowercase, one number 
+Confirm Password Password, required Must match the Password field exactly 
+Submission Flow 
+13. Server-side validation runs on every field. If any fails, the form re-renders with specific error 
+messages and retained values (passwords cleared). 
+14. If a duplicate email or phone is detected, a clear duplicate message is shown. 
+15. On success, password is BCrypt-hashed and a new users row is inserted with role = citizen, 
+status = active. 
+16. The citizen is redirected to /login with success message "Registration successful. Please log in." 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 11 of 24 
+8.2 Login 
+Single login page shared across all roles. The form contains Email, Password, and an optional "Remember 
+Me" checkbox. 
+Authentication Flow 
+17. Empty-field check: "Email and password are required." 
+18. Query users WHERE email = ?. If no row: show generic "Invalid email or password." (does not 
+reveal whether email or password was wrong). 
+19. BCrypt.checkpw(entered, stored_hash). If no match: same generic error. 
+20. If user.status = inactive: "Your account has been deactivated. Please contact your municipality 
+admin." 
+21. On success, create HttpSession with userId, userName, userRole, municipalityId, 
+municipalityName, wardNumber. 
+22. Set Remember Me cookie with email (7 days) if the checkbox was ticked. 
+23. Redirect based on role (see Section 6.5). 
+8.3 Citizen Dashboard 
+Loaded at `/citizen/dashboard`. Protected by AuthFilter (role must be citizen). 
+Navigation Bar (Citizen) 
+Home  |  Submit Complaint  |  My Complaints  |  Profile  |  Logout 
+The logged-in citizen accesses public complaints through the same Home page a guest uses — there is no 
+separate Browse Issues page. The citizen's name and municipality are shown in the top-right corner of 
+every page. 
+Dashboard Contents 
+• Welcome message: "Welcome, [Name]!" 
+• Summary cards: Total submitted, Pending count, In Progress count, Resolved count. 
+• Latest 5 of the citizen's own complaints (title, category, status, vote count, date). 
+• Quick action buttons: "Submit New Complaint" and "View All My Complaints". 
+8.4 Submitting a New Complaint 
+Loaded at `/citizen/submit-complaint`. The form contains: 
+Field Type Validation / Notes 
+Title Text, required 10–200 characters 
+Description Textarea, required Min 30 characters, max 5000 
+Category Dropdown, required Pulled from categories table 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 12 of 24 
+Field Type Validation / Notes 
+Ward Number Number, required Pre-filled from session; citizen may change 
+Location Text, required Free-text description (e.g., "Near Bhanu Chowk, 
+Ward 5"); min 5 chars; NOT GPS 
+Photo Evidence File, optional Single photo; JPG or PNG only; max 5 MB 
+Contact Email Email, optional Pre-filled with registered email; can be cleared 
+Submit Anonymously Checkbox, optional If ticked, submitter's name is hidden from 
+public (admin still sees it) 
+Municipality ID and user ID are attached automatically from the session — they are not form fields. 
+Photo Handling 
+• The server validates MIME type (image/jpeg, image/png) and extension. 
+• Accepted files are renamed to complaint_{timestamp}_{random}.{ext} to avoid collisions 
+and directory traversal. 
+• File is saved to /webapp/uploads/complaints/ on the local filesystem. 
+• The relative path (e.g., uploads/complaints/complaint_1713360000_a7f2.jpg) is stored in 
+complaints.image_path. 
+• If no photo is uploaded, image_path remains null and the detail page shows no image section. 
+Submission Flow 
+24. Server-side validation runs on every field. If any fails, the form re-renders with error messages 
+and retained values. 
+25. On success, insert into complaints with status = pending, vote_count = 0, is_anonymous from 
+checkbox, image_path from upload. 
+26. Redirect to /citizen/my-complaints with message "Your complaint has been submitted 
+successfully." 
+27. Complaint appears immediately on the public Home page and in the relevant Municipality 
+Admin's dashboard — there is no approval step. 
+8.5 My Complaints 
+Loaded at `/citizen/my-complaints`. Lists all complaints submitted by the logged-in citizen, sorted by 
+created_at DESC. Each row shows title (clickable), category, ward, status badge, vote count, date, and 
+action buttons **Edit** and **Delete**. If the citizen has submitted nothing yet, an empty-state message 
+with a "Submit Your First Complaint" button is shown. 
+8.6 Editing a Complaint 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 13 of 24 
+Citizens can edit a complaint **only while it is still in Pending status**. Once an admin moves it to In 
+Progress or Resolved, the edit and delete actions are hidden and attempts to access the edit URL directly 
+show: "This complaint is being processed and can no longer be edited." 
+Edit Flow 
+28. AuthFilter + server-side check: complaint.user_id must match session userId. 
+29. Server-side check: complaint.status must be "pending". Otherwise, block the action. 
+30. Edit form loads pre-filled with current values, including a preview of the existing photo if 
+present. 
+31. The citizen can (a) modify any text field, (b) upload a replacement photo, or (c) remove the 
+existing photo. If replaced or removed, the old file is deleted from disk. 
+32. On submit, server-side validation runs again and the complaints row is updated (updated_at is 
+auto-set). 
+33. Redirect to /citizen/my-complaints with message "Your complaint has been updated 
+successfully." 
+8.7 Deleting a Complaint 
+Same rule: allowed only while status = pending, and only for the citizen's own complaints. 
+34. A confirmation prompt is shown: "Are you sure you want to delete this complaint? This action 
+cannot be undone." 
+35. On confirm, the complaints row is deleted. Associated votes are removed automatically (ON 
+DELETE CASCADE). If an image exists, the file is deleted from disk. 
+36. Redirect to /citizen/my-complaints with message "Your complaint has been deleted." 
+8.8 Viewing a Complaint Detail (Logged-in Citizen) 
+Same detail page as for guests, with these differences: 
+• The Support This Issue button is active and functional. 
+• If the citizen has already voted on this complaint, the button reads "You have supported this 
+issue" and is disabled. 
+• If this is the citizen's own complaint, the Support button is hidden; instead, Edit and Delete 
+buttons are shown (only while Pending). 
+8.9 Voting / Supporting a Complaint 
+Citizens can upvote any complaint across any municipality (national visibility). Voting is one-directional: 
+once cast, a vote cannot be withdrawn. Only upvote/support is supported — there are no downvotes. 
+Vote Flow 
+37. Session check — not logged in → redirect to login. 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 14 of 24 
+38. Own-complaint check — if user_id matches complaint.user_id, show "You cannot vote on your 
+own complaint." and do nothing. 
+39. Duplicate-vote check — query votes WHERE user_id = ? AND complaint_id = ?. If a row exists, 
+show "You have already supported this issue." 
+40. Otherwise: INSERT INTO votes (user_id, complaint_id) and UPDATE complaints SET vote_count = 
+vote_count + 1. 
+41. Button updates to "You have supported this issue" and vote count on-page increments by 1. The 
+citizen remains on the same page. 
+8.10 Profile 
+At `/citizen/profile`. Shows the citizen's current information and provides two separate forms. 
+Profile Update Form 
+• Editable: Full Name, Phone Number, Ward Number. 
+• Read-only: Email, Municipality, Account Created Date. 
+• Same validation rules as registration. Phone uniqueness check excludes the current user's own 
+phone. 
+Change Password Form 
+• Fields: Current Password, New Password, Confirm New Password. 
+• Server verifies current password via BCrypt.checkpw. If mismatch: "Current password is 
+incorrect." 
+• If new passwords don't match: "New passwords do not match." 
+• If new password fails strength rules: same message as registration. 
+• On success: store new BCrypt hash, show "Your password has been changed successfully." 
+• Note: Municipality Admins cannot reset a citizen's password — only the citizen themselves can 
+do it via this form. 
+8.11 Logout 
+42. Call session.invalidate(). 
+43. Redirect to login with message "You have been logged out successfully." 
+44. Navigation bar reverts to Guest version. 
+ 
+9. Municipality Admin Workflows 
+A Municipality Admin is created by the Super Admin and assigned to exactly one municipality (strict 1:1). 
+They manage complaints and citizens within that municipality only. They cannot see or touch data from 
+other municipalities. 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 15 of 24 
+9.1 Login 
+Uses the shared Login Page. After authentication, the system reads role = municipality_admin from the 
+DB and redirects to `/admin/dashboard`. 
+Navigation Bar (Municipality Admin) 
+Dashboard  |  Manage Complaints  |  Manage Users  |  Reports  |  Logout 
+The admin's name and municipality are shown in the top-right corner (e.g., "Admin: Ram Sharma | Itahari 
+Sub-Metropolitan City"). 
+9.2 Admin Dashboard 
+All data on this page is scoped to the admin's assigned municipality only (via WHERE municipality_id = ?). 
+• Municipality name prominently at the top. 
+• Summary cards: Total complaints, Pending, In Progress, Resolved, Total citizens, Total votes 
+received. 
+• Latest 10 complaints list with title, submitter, category, ward, status, vote count, date. 
+• Top 5 most-supported complaints (by vote_count DESC). 
+• Quick action links: View All Complaints, View Reports, Manage Users. 
+9.3 Manage Complaints 
+Loaded at `/admin/manage-complaints`. Lists every complaint where municipality_id matches the 
+admin's assigned municipality. 
+Filters Available 
+• Keyword search (title + description) 
+• Category dropdown 
+• Ward number text input 
+• Status dropdown (All, Pending, In Progress, Resolved) 
+• Sort options: newest/oldest, most/least voted 
+Complaint Row Contents 
+ID, Title (clickable), Submitted By (real name — admins always see real names even for anonymous 
+complaints), Category, Ward, Location, Status, Vote Count, Date Submitted, Actions: View | Update Status 
+| Delete. 
+9.4 Complaint Detail (Admin View) 
+Same public information plus admin-only fields: 
+• Submitter's full name, email, phone, and ward (so the admin can follow up). Anonymous 
+submissions still display this to the admin. 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 16 of 24 
+• Uploaded photo (if present). 
+• Status dropdown with an Update Status button. 
+• Delete Complaint button (with confirmation prompt). 
+9.5 Updating Complaint Status 
+The admin selects a new status and clicks Update. The complaints row is updated and updated_at is 
+refreshed. The system confirms with "Complaint status updated to [New Status]." The citizen sees the 
+new status immediately on their My Complaints page and on the public detail page. 
+Lifecycle Rule 
+Status moves forward only: Pending → In Progress → Resolved. The admin cannot move a complaint 
+backwards, and a Resolved complaint cannot be reopened. If an issue recurs, a new complaint should be 
+submitted. 
+9.6 Deleting a Complaint (Admin) 
+Used for spam, duplicates, or inappropriate submissions. Confirmation prompt appears. On confirm, the 
+complaints row is deleted, votes are removed by cascade, and the uploaded image (if any) is deleted from 
+disk. Success: "Complaint has been deleted." 
+9.7 Manage Users 
+Loaded at `/admin/manage-users`. Lists all citizens (users WHERE role = citizen AND municipality_id = 
+admin's municipality). 
+List Contents 
+User ID, Full Name, Email, Phone, Ward, Status (Active/Inactive), Date Registered, Number of complaints 
+submitted, Actions (Activate/Deactivate). 
+Search 
+Search bar at the top supports searching by name, email, or phone. 
+Deactivating a Citizen 
+45. Confirmation: "Are you sure you want to deactivate this user?" 
+46. Set users.status = inactive. The citizen can no longer log in. 
+47. Their existing complaints remain fully visible publicly — transparency is preserved. 
+48. They cannot submit new complaints, vote, or edit their profile while deactivated. 
+Activating a Citizen 
+Reverses the above — sets status back to active. The citizen can log in and use the platform again. 
+9.8 Reports 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 17 of 24 
+Loaded at `/admin/reports`. All analytics are scoped to the admin's municipality and rendered as plain 
+HTML tables (no charts, no JS libraries). There is no export feature. 
+Available Reports 
+• Complaints by Status — count and percentage of Pending, In Progress, Resolved. 
+• Complaints by Category — count per category (Road/Infrastructure, Water Supply, …). 
+• Most Reported Wards — wards ranked by number of complaints. 
+• Most Supported Issues — complaints ranked by vote_count DESC. 
+• Recent Activity — latest status changes and new complaints (last 7 and 30 days). 
+9.9 Logout 
+Identical to citizen logout. 
+ 
+10. Super Admin Workflows 
+The Super Admin is the platform-level administrator. They manage municipalities, Municipality Admins, 
+and complaint categories — but never handle individual complaints. The Super Admin account is pre-
+seeded in the database via the SQL script; there is no public Super Admin registration. 
+10.1 Login 
+Shared Login Page. Role = super_admin → redirect to `/superadmin/dashboard`. 
+Navigation Bar (Super Admin) 
+Dashboard  |  Manage Municipalities  |  Manage Admins  |  Manage Categories  |  
+Logout 
+10.2 Super Admin Dashboard 
+• Platform overview: total municipalities, total admins, total citizens, total complaints (all 
+municipalities). 
+• Full list of municipalities with name, district, province, assigned admin (or "No Admin 
+Assigned"), status, number of citizens, number of complaints. 
+• Quick action buttons: Add New Municipality, Create Municipality Admin. 
+10.3 Manage Municipalities 
+Table of all municipalities with actions: Edit, Activate/Deactivate. 
+Important: No Hard Delete 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 18 of 24 
+Municipalities cannot be deleted through the UI. Only soft-delete (Deactivate) is offered. Deactivation 
+hides the municipality from the citizen registration dropdown and prevents new registrations, but 
+preserves all historical data (existing citizens and complaints remain visible). 
+10.4 Adding a New Municipality 
+Form fields: 
+Field Type Validation 
+Municipality Name Text, required Must be unique across municipalities 
+District Text, required Not empty (e.g., Sunsari, Morang, Jhapa) 
+Province Dropdown, required One of Nepal's 7 provinces 
+On success, a new municipalities row is inserted with status = active. The municipality does NOT appear 
+in the citizen registration dropdown until an active Municipality Admin is assigned to it. 
+10.5 Editing a Municipality 
+Same fields, pre-filled. Super Admin modifies values and clicks Update. Validation is the same. 
+10.6 Deactivating / Activating a Municipality 
+• Deactivate: Confirmation prompt. On confirm, municipalities.status = inactive. The municipality 
+disappears from the registration dropdown. Existing data is retained. 
+• Activate: Simply sets status back to active. If it has an active admin, it reappears in the 
+registration dropdown. 
+10.7 Manage Municipality Admins 
+Table of all Municipality Admin accounts with actions: Edit, Activate/Deactivate. 
+10.8 Creating a Municipality Admin 
+Form fields: 
+Field Type Validation 
+Full Name Text, required Letters and spaces only 
+Email Email, required Valid format, unique across users 
+Phone Text, required 10-digit Nepali format (starts with 97 or 98), 
+unique 
+Assigned Municipality Dropdown, required Must be a municipality WITHOUT an active 
+admin (enforces strict 1:1) 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 19 of 24 
+Field Type Validation 
+Password Password, required Same rules as citizen registration 
+Confirm Password Password, required Must match 
+1:1 Enforcement 
+The system enforces that each municipality has at most one active Municipality Admin. The dropdown on 
+this form only shows municipalities that currently have no active admin. If an admin needs to be replaced, 
+the Super Admin must first deactivate the existing admin before creating a new one. 
+Once an active admin is created for a municipality, that municipality becomes available in the citizen 
+registration dropdown. 
+10.9 Editing a Municipality Admin 
+The Super Admin can edit the admin's name, email, phone, reassign them to a different municipality, or 
+reset their password. Reassignment still respects the 1:1 rule — the target municipality must have no 
+other active admin. 
+10.10 Deactivating / Activating an Admin 
+• Deactivate: Confirmation prompt. Admin.status = inactive; they can no longer log in. If this was 
+the only admin of their municipality, that municipality disappears from the citizen registration 
+dropdown until another admin is assigned or this one is reactivated. 
+• Activate: Reverses the above. 
+10.11 Manage Categories 
+Categories are managed exclusively by the Super Admin, platform-wide. The page lists all categories with 
+Edit and Delete actions. New categories can be added; existing ones edited or deleted. Deletion is blocked 
+(ON DELETE RESTRICT) if any complaint still references the category — the Super Admin must first reassign 
+or delete those complaints, or simply keep the category. 
+10.12 Logout 
+Identical to other roles. 
+ 
+11. Pages Inventory 
+11.1 Public Pages 
+• Home / Landing — Latest & Trending tabs, keyword search, municipality filter, 20-per-page 
+pagination. 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 20 of 24 
+• Complaint Detail — Full complaint details including photo if present. 
+• About — Platform purpose and political neutrality statement. 
+• Login — Shared form for all three authenticated roles. 
+• Register — Citizen-only registration. 
+11.2 Citizen Pages (role = citizen) 
+• Dashboard — Summary stats, latest 5 own complaints. 
+• Submit Complaint — Full form including optional photo and anonymous checkbox. 
+• Edit Complaint — Pending-status only. 
+• My Complaints — Full submission history. 
+• Profile — Personal info + password change. 
+11.3 Municipality Admin Pages (role = municipality_admin) 
+• Dashboard — Municipality-scoped stats and lists. 
+• Manage Complaints — Filter by keyword, category, ward, status. 
+• Complaint Detail (Admin View) — Public data + submitter contact info + admin actions. 
+• Manage Users — Citizen list with search by name/email/phone, activate/deactivate. 
+• Reports — Plain-table analytics (no charts, no export). 
+11.4 Super Admin Pages (role = super_admin) 
+• Dashboard — Platform-wide stats, municipality list. 
+• Manage Municipalities — Add, edit, activate/deactivate (no hard delete). 
+• Manage Admins — Create, edit, activate/deactivate (strict 1:1). 
+• Manage Categories — Add, edit, delete (restricted if in use). 
+11.5 Error Pages 
+• 404 Not Found — Custom styled page. 
+• 500 Internal Server Error — Custom styled page. 
+• Unauthorized Access — Shown when a user's role doesn't match the requested URL prefix. 
+ 
+12. Navigation Bar Summary 
+Role Navigation Items 
+Guest (not logged in) Home  |  About  |  Login  |  Register 
+Citizen Home  |  Submit Complaint  |  My Complaints  |  Profile  |  Logout 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 21 of 24 
+Role Navigation Items 
+Municipality Admin Dashboard  |  Manage Complaints  |  Manage Users  |  Reports  |  Logout 
+Super Admin Dashboard  |  Manage Municipalities  |  Manage Admins  |  Manage 
+Categories  |  Logout 
+ 
+13. Validation Rules Summary 
+Consolidated reference table of every field-level validation rule in the system. 
+Field Rule Error Message 
+Full Name Letters and spaces only; min 2 
+chars 
+"Full name must contain only letters 
+and spaces." 
+Email Valid format; unique in users "An account with this email already 
+exists." 
+Phone 10 digits, starts with 97 or 98; 
+unique 
+"An account with this phone number 
+already exists." 
+Password Min 8; 1 upper, 1 lower, 1 
+digit 
+"Password must be at least 8 
+characters with one uppercase letter, 
+one lowercase letter, and one 
+number." 
+Confirm Password Must match Password "Passwords do not match." 
+Municipality (register) Must be active with active 
+admin 
+"Please select your municipality." 
+Ward Number Integer 1–33 "Please enter a valid ward number." 
+Complaint Title 10–200 characters "Title must be between 10 and 200 
+characters." 
+Complaint Description 30–5000 characters "Description must be at least 30 
+characters." 
+Category Selected from dropdown "Please select a category." 
+Location Min 5 characters, free text "Please describe the location of the 
+issue." 
+Photo Upload JPG/PNG only; ≤5 MB; single 
+file 
+"Only JPG and PNG files up to 5 MB 
+are allowed." 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 22 of 24 
+Field Rule Error Message 
+Municipality Name 
+(admin) 
+Unique "A municipality with this name already 
+exists." 
+Admin Municipality 
+Assign 
+Target must have no active 
+admin 
+"This municipality already has an 
+active admin." 
+ 
+14. Security Considerations 
+• Password hashing — BCrypt with per-user salt embedded in the hash; never stored in plaintext. 
+• SQL injection — every query uses PreparedStatement with parameter binding; string 
+concatenation is forbidden. 
+• XSS — JSP output uses JSTL's <c:out> tag or ${fn:escapeXml(...)}, which HTML-escapes user-
+provided content by default. 
+• CSRF — state-changing forms include a hidden CSRF token stored in the session; the servlet 
+validates the token before processing. 
+• Session hijacking — sessions use HttpOnly cookies; session IDs are regenerated on login. 
+• File upload — uploads are validated by both MIME type and extension; filenames are 
+randomized to prevent overwrite and directory traversal; files are stored outside /WEB-INF so 
+JSPs cannot execute them. 
+• Role enforcement — AuthFilter runs before every servlet reaches protected URLs; servlets 
+additionally re-check session role and resource ownership (e.g., a citizen editing a complaint 
+must own it). 
+• Generic login errors — the login form never reveals whether the email or password was 
+incorrect. 
+• Deactivation vs deletion — destructive operations (municipality, admin, citizen) prefer 
+deactivation over deletion to avoid irreversible data loss. 
+ 
+15. System Initialization 
+15.1 Database Setup 
+49. Install MySQL locally and create a user with full privileges on a new database named 
+civicconnect. 
+50. Run civicconnect.sql, which: 
+◦ Creates the civicconnect schema with utf8mb4 charset. 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 23 of 24 
+◦ Creates all five tables (municipalities, categories, users, complaints, votes) with foreign 
+keys and indexes. 
+◦ Inserts the nine default categories. 
+◦ Inserts one Super Admin account (email: admin@civicconnect.com, password pre-
+hashed with BCrypt). 
+51. Update /WEB-INF/db.properties with the MySQL host, port, database name, user, and 
+password. 
+15.2 First-Time Setup Flow 
+52. Super Admin logs in with seeded credentials. 
+53. Super Admin adds municipalities (e.g., Inaruwa, Itahari, Dharan, Biratnagar). 
+54. Super Admin creates a Municipality Admin for each municipality (strict 1:1). 
+55. Citizens can now visit, see those municipalities in the registration dropdown, and register. 
+56. Municipality Admins log in and begin managing incoming complaints. 
+15.3 Build & Run 
+57. Clone the GitHub repository. 
+58. Run mvn clean package to produce civicconnect.war. 
+59. Deploy the WAR to Apache Tomcat 10 or 11 (drop into webapps/ or deploy via Tomcat 
+Manager). 
+60. Start Tomcat and browse to http://localhost:8080/civicconnect/. 
+ 
+Appendix — Key System Behaviors 
+Behavior Decision 
+Complaint approval before public None — complaints are public immediately 
+Home page sorting Two tabs: Latest (by date) and Trending (by vote count) 
+Home page filters Keyword search + Municipality dropdown (20 per page) 
+Complaint visibility scope for citizens National (all municipalities visible) 
+Voting scope Citizens may upvote any complaint in any municipality 
+Vote withdrawal Not allowed — once cast, permanent 
+Downvoting Not supported 
+Comments on complaints Not supported 
+CivicConnect — Technical Specification 
+CodeCrafters  |  Page 24 of 24 
+Behavior Decision 
+Photo evidence Optional, single photo, JPG/PNG, ≤5 MB, shown only on 
+detail page 
+Anonymous submission Allowed — name hidden from public, admin still sees it 
+Complaint status lifecycle Pending → In Progress → Resolved (forward only, no reopen) 
+Rejected status Not used — spam is simply deleted 
+Citizen edit/delete own complaint Only while status = Pending 
+Municipality deletion Soft delete only (Deactivate); no hard delete in UI 
+Municipality admins per municipality Strict 1:1 
+Deactivated citizen's complaints Remain fully visible 
+Admin resetting citizen password Not allowed — citizen must do it themselves 
+Forgot password / Email verify / 
+Brute-force lockout 
+Not implemented (out of coursework scope) 
+Notifications (email or in-app) Not implemented 
+Report export (CSV/PDF) Not supported 
+Category management Super Admin only, platform-wide 
+UI theme Light mode only, blue-and-white color scheme 
+Language English only 
+Deployment target Localhost 
+ 

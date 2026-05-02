@@ -94,7 +94,11 @@ public class Users {
         this.createdAt = createdAt;
     }
 
-    public Users(int id, String fullName, String email, String phone, String passwordHash, String role, Integer municipalityId, Integer wardNumber, String status, LocalDateTime createdAt) {
+    public Users() {
+    }
+
+    public Users(int id, String fullName, String email, String phone, String passwordHash, String role,
+            Integer municipalityId, Integer wardNumber, String status, LocalDateTime createdAt) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
