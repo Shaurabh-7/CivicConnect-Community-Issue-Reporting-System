@@ -64,19 +64,7 @@ public class UserDAO implements userInterface {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                Users user = new Users(
-                        rs.getInt("id"),
-                        rs.getString("full_name"),
-                        rs.getString("email"),
-                        rs.getString("phone"),
-                        rs.getString("password_hash"),
-                        rs.getString("role"),
-                        (Integer) rs.getObject("municipality_id"),
-                        (Integer) rs.getObject("ward_number"),
-                        rs.getString("status"),
-                        rs.getTimestamp("created_at").toLocalDateTime()
-                );
-                return user;
+                return mapResultSetToUser(rs);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,19 +83,7 @@ public class UserDAO implements userInterface {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                Users user = new Users(
-                        rs.getInt("id"),
-                        rs.getString("full_name"),
-                        rs.getString("email"),
-                        rs.getString("phone"),
-                        rs.getString("password_hash"),
-                        rs.getString("role"),
-                        (Integer) rs.getObject("municipality_id"),
-                        (Integer) rs.getObject("ward_number"),
-                        rs.getString("status"),
-                        rs.getTimestamp("created_at").toLocalDateTime()
-                );
-                return user;
+                return mapResultSetToUser(rs);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -133,7 +109,6 @@ public class UserDAO implements userInterface {
 
             ps.setInt(4, user.getId());
 
-            System.out.println(sql);
             int row = ps.executeUpdate();
             return row > 0;
 
@@ -153,7 +128,6 @@ public class UserDAO implements userInterface {
             ps.setString(1, newPasswordHash);
             ps.setInt(2, userId);
 
-            System.out.println(sql);
             int row = ps.executeUpdate();
             return row > 0;
 
@@ -168,26 +142,12 @@ public class UserDAO implements userInterface {
         ArrayList<Users> users = new ArrayList<>();
         String sql = "SELECT * FROM users ORDER BY created_at DESC";
 
-        try {
-            Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
-            {
-                while (rs.next()) {
-                    Users user = new Users(
-                            rs.getInt("id"),
-                            rs.getString("full_name"),
-                            rs.getString("email"),
-                            rs.getString("phone"),
-                            rs.getString("password_hash"),
-                            rs.getString("role"),
-                            (Integer) rs.getObject("municipality_id"),
-                            (Integer) rs.getObject("ward_number"),
-                            rs.getString("status"),
-                            rs.getTimestamp("created_at").toLocalDateTime()
-                    );
-                    users.add(user);
-                }
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            
+            while (rs.next()) {
+                users.add(mapResultSetToUser(rs));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -205,22 +165,9 @@ public class UserDAO implements userInterface {
 
             ps.setString(1, role);
             ResultSet rs = ps.executeQuery();
-            {
-                while (rs.next()) {
-                    Users user = new Users(
-                            rs.getInt("id"),
-                            rs.getString("full_name"),
-                            rs.getString("email"),
-                            rs.getString("phone"),
-                            rs.getString("password_hash"),
-                            rs.getString("role"),
-                            (Integer) rs.getObject("municipality_id"),
-                            (Integer) rs.getObject("ward_number"),
-                            rs.getString("status"),
-                            rs.getTimestamp("created_at").toLocalDateTime()
-                    );
-                    users.add(user);
-                }
+            
+            while (rs.next()) {
+                users.add(mapResultSetToUser(rs));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -238,7 +185,6 @@ public class UserDAO implements userInterface {
             ps.setString(1, status);
             ps.setInt(2, userId);
 
-            System.out.println(sql);
             int row = ps.executeUpdate();
             return row > 0;
 
@@ -246,5 +192,66 @@ public class UserDAO implements userInterface {
             e.printStackTrace();
         }
         return false;
+    }
+
+    @Override
+    public ArrayList<Users> getUsersByMunicipality(int municipalityId) {
+        ArrayList<Users> users = new ArrayList<>();
+        String sql = "SELECT * FROM users WHERE municipality_id = ? AND role = 'citizen' ORDER BY created_at DESC";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, municipalityId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                users.add(mapResultSetToUser(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    @Override
+    public ArrayList<Users> searchUsers(int municipalityId, String query) {
+        ArrayList<Users> users = new ArrayList<>();
+        String sql = "SELECT * FROM users WHERE municipality_id = ? AND role = 'citizen' " +
+                     "AND (full_name LIKE ? OR email LIKE ? OR phone LIKE ?) ORDER BY created_at DESC";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, municipalityId);
+            String searchPattern = "%" + query + "%";
+            ps.setString(2, searchPattern);
+            ps.setString(3, searchPattern);
+            ps.setString(4, searchPattern);
+            
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                users.add(mapResultSetToUser(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    private Users mapResultSetToUser(ResultSet rs) throws Exception {
+        return new Users(
+                rs.getInt("id"),
+                rs.getString("full_name"),
+                rs.getString("email"),
+                rs.getString("phone"),
+                rs.getString("password_hash"),
+                rs.getString("role"),
+                (Integer) rs.getObject("municipality_id"),
+                (Integer) rs.getObject("ward_number"),
+                rs.getString("status"),
+                rs.getTimestamp("created_at").toLocalDateTime()
+        );
     }
 }

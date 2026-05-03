@@ -1,4 +1,5 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="civicconnect.model.Municipality" %>
+<%@ page import="java.util.ArrayList" %>
 <%
     String retainFullName = (String) request.getAttribute("retainFullName");
     String retainEmail = (String) request.getAttribute("retainEmail");
@@ -13,6 +14,8 @@
     String errorPassword = (String) request.getAttribute("errorPassword");
     String errorConfirmPassword = (String) request.getAttribute("errorConfirmPassword");
     String errorMessage = (String) request.getAttribute("errorMessage");
+
+    ArrayList<Municipality> municipalities = (ArrayList<Municipality>) request.getAttribute("municipalities");
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,7 +33,7 @@
         </div>
         <div class="nav-links">
             <a href="<%= request.getContextPath() %>/home">Home</a>
-            <a href="<%= request.getContextPath() %>/WEB-INF/views/public/about.jsp">About</a>
+            <a href="<%= request.getContextPath() %>/about">About</a>
             <a href="<%= request.getContextPath() %>/login">Login</a>
             <a href="<%= request.getContextPath() %>/register" class="btn-nav active">Register</a>
         </div>
@@ -48,9 +51,7 @@
                 <div class="alert alert-danger"><%= errorMessage %></div>
             <% } %>
 
-            <form action="<%= request.getContextPath() %>/user-auth" method="POST">
-                <input type="hidden" name="action" value="register">
-
+            <form action="<%= request.getContextPath() %>/register" method="POST">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="fullName">Full Name <span class="required">*</span></label>
@@ -70,7 +71,7 @@
 
                 <div class="form-group">
                     <label for="email">Email Address <span class="required">*</span></label>
-                    <input type="email" id="email" name="email" placeholder="sauravniroula54@gmail.com" 
+                    <input type="email" id="email" name="email" placeholder="example@email.com" 
                            class="<%= errorEmail != null ? "input-error" : "" %>"
                            value="<%= retainEmail != null ? retainEmail : "" %>" required>
                     <% if (errorEmail != null) { %> <div class="error-text"><%= errorEmail %></div> <% } %>
@@ -81,11 +82,11 @@
                         <label for="municipalityId">Municipality <span class="required">*</span></label>
                         <select id="municipalityId" name="municipalityId" class="<%= errorMunicipality != null ? "input-error" : "" %>" required>
                             <option value="">Select Municipality...</option>
-                            <option value="1">Kathmandu Metropolitan City</option>
-                            <option value="2">Lalitpur Metropolitan City</option>
-                            <option value="3">Pokhara Metropolitan City</option>
-                            <option value="4">Itahari Sub-Metropolitan City</option>
-                            <option value="5">Dharan Sub-Metropolitan City</option>
+                            <% if (municipalities != null) { 
+                                for (Municipality m : municipalities) { %>
+                                    <option value="<%= m.getId() %>"><%= m.getName() %></option>
+                            <%  } 
+                               } %>
                         </select>
                         <% if (errorMunicipality != null) { %> <div class="error-text"><%= errorMunicipality %></div> <% } %>
                     </div>

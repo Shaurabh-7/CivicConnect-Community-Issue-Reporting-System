@@ -12,4 +12,6 @@ public interface userInterface {
     ArrayList<Users> getAllUsers();
     ArrayList<Users> getUsersByRole(String role);
     boolean updateUserStatus(int userId, String status);
+    ArrayList<Users> getUsersByMunicipality(int municipalityId);
+    ArrayList<Users> searchUsers(int municipalityId, String query);
 }
