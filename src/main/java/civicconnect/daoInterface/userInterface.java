@@ -1,6 +1,7 @@
 package civicconnect.daoInterface;
 
 import civicconnect.model.Users;
+import civicconnect.dto.user.UserDTO;
 import java.util.ArrayList;
 
 public interface userInterface {
@@ -14,4 +15,9 @@ public interface userInterface {
     boolean updateUserStatus(int userId, String status);
     ArrayList<Users> getUsersByMunicipality(int municipalityId);
     ArrayList<Users> searchUsers(int municipalityId, String query);
+
+    // Super Admin methods
+    int getActiveAdminsCount();
+    int getTotalCitizensCount();
+    ArrayList<UserDTO> getAllMunicipalityAdmins();
 }

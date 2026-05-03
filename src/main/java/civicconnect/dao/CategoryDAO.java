@@ -15,7 +15,7 @@ public class CategoryDAO implements categoryInterface {
     public boolean addCategory(Categories category) {
         String sql = "INSERT INTO categories (name, created_at) VALUES (?, NOW())";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, category.getName());
 
@@ -31,7 +31,7 @@ public class CategoryDAO implements categoryInterface {
     public boolean updateCategory(Categories category) {
         String sql = "UPDATE categories SET name = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, category.getName());
             ps.setInt(2, category.getId());
@@ -48,7 +48,7 @@ public class CategoryDAO implements categoryInterface {
     public boolean deleteCategory(int id) {
         String sql = "DELETE FROM categories WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
 
@@ -64,7 +64,7 @@ public class CategoryDAO implements categoryInterface {
     public Categories getCategoryById(int id) {
         String sql = "SELECT * FROM categories WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -83,8 +83,8 @@ public class CategoryDAO implements categoryInterface {
         ArrayList<Categories> list = new ArrayList<>();
         String sql = "SELECT * FROM categories ORDER BY name ASC";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 list.add(mapResultSetToCategory(rs));
@@ -95,11 +95,25 @@ public class CategoryDAO implements categoryInterface {
         return list;
     }
 
+    @Override
+    public int getTotalCategoriesCount() {
+        String sql = "SELECT COUNT(*) FROM categories";
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     private Categories mapResultSetToCategory(ResultSet rs) throws Exception {
         return new Categories(
                 rs.getInt("id"),
                 rs.getString("name"),
-                rs.getTimestamp("created_at").toLocalDateTime()
-        );
+                rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toLocalDateTime() : null);
     }
 }

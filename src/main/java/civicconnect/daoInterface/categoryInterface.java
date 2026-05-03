@@ -9,4 +9,5 @@ public interface categoryInterface {
     boolean deleteCategory(int id);
     Categories getCategoryById(int id);
     ArrayList<Categories> getAllCategories();
+    int getTotalCategoriesCount();
 }

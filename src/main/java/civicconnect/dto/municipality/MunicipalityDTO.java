@@ -1,14 +1,23 @@
-package civicconnect.model;
+package civicconnect.dto.municipality;
 
 import java.time.LocalDateTime;
 
-public class Municipality {
+public class MunicipalityDTO {
     private int id;
     private String name;
     private String district;
     private String province;
     private String status;
     private LocalDateTime createdAt;
+
+    private String adminName;
+    private String adminEmail;
+    private String adminPhone;
+    private int citizenCount;
+    private int complaintCount;
+
+    public MunicipalityDTO() {
+    }
 
     public int getId() {
         return id;
@@ -58,28 +67,43 @@ public class Municipality {
         this.createdAt = createdAt;
     }
 
-    public Municipality() {
+    public String getAdminName() {
+        return adminName;
     }
 
-    public Municipality(int id, String name, String district, String province, String status, LocalDateTime createdAt) {
-        this.id = id;
-        this.name = name;
-        this.district = district;
-        this.province = province;
-        this.status = status;
-        this.createdAt = createdAt;
+    public void setAdminName(String adminName) {
+        this.adminName = adminName;
     }
 
-    public Municipality(String name, String district, String province, String status) {
-        this.name = name;
-        this.district = district;
-        this.province = province;
-        this.status = status;
+    public String getAdminEmail() {
+        return adminEmail;
     }
 
-    public Municipality(String name, String district, String province) {
-        this.name = name;
-        this.district = district;
-        this.province = province;
+    public void setAdminEmail(String adminEmail) {
+        this.adminEmail = adminEmail;
+    }
+
+    public String getAdminPhone() {
+        return adminPhone;
+    }
+
+    public void setAdminPhone(String adminPhone) {
+        this.adminPhone = adminPhone;
+    }
+
+    public int getCitizenCount() {
+        return citizenCount;
+    }
+
+    public void setCitizenCount(int citizenCount) {
+        this.citizenCount = citizenCount;
+    }
+
+    public int getComplaintCount() {
+        return complaintCount;
+    }
+
+    public void setComplaintCount(int complaintCount) {
+        this.complaintCount = complaintCount;
     }
 }

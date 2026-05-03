@@ -1,9 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="civicconnect.model.Municipality" %>
+<%@ page import="civicconnect.model.Categories" %>
 <%
-    Municipality m = (Municipality) request.getAttribute("municipality");
+    Categories category = (Categories) request.getAttribute("category");
     boolean isEdit = request.getAttribute("isEdit") != null && (boolean) request.getAttribute("isEdit");
-    String title = isEdit ? "Edit Municipality" : "Add New Municipality";
+    String title = isEdit ? "Edit Category" : "Add New Category";
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,10 +22,10 @@
             <div class="top-header">
                 <div class="header-info">
                     <h2><%= title %></h2>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Register a new administrative region</p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Define complaint categories for citizens</p>
                 </div>
                 <div class="header-user">
-                    <a href="<%= request.getContextPath() %>/superadmin/municipalities" class="logout-link" style="color: var(--text-main); border-color: var(--border-color);">
+                    <a href="<%= request.getContextPath() %>/superadmin/categories" class="logout-link" style="color: var(--text-main); border-color: var(--border-color);">
                         <i class="fas fa-arrow-left"></i> Back to List
                     </a>
                 </div>
@@ -38,42 +38,24 @@
                     </div>
                 <% } %>
 
-                <form action="<%= request.getContextPath() %>/superadmin/municipalities" method="POST">
+                <form action="<%= request.getContextPath() %>/superadmin/categories" method="POST">
                     <input type="hidden" name="action" value="<%= isEdit ? "edit" : "add" %>">
                     <% if (isEdit) { %>
-                        <input type="hidden" name="id" value="<%= m.getId() %>">
+                        <input type="hidden" name="id" value="<%= category.getId() %>">
                     <% } %>
 
                     <div class="form-group">
-                        <label for="name">Municipality Name <span class="required">*</span></label>
-                        <input type="text" id="name" name="name" 
-                               placeholder="e.g. Kathmandu Metropolitan City" 
-                               value="<%= isEdit ? m.getName() : "" %>" required>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="district">District <span class="required">*</span></label>
-                            <input type="text" id="district" name="district" 
-                                   placeholder="e.g. Kathmandu" 
-                                   value="<%= isEdit ? m.getDistrict() : "" %>" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="province">Province <span class="required">*</span></label>
-                            <select id="province" name="province" required>
-                                <option value="">Select Province</option>
-                                <% String[] provinces = {"Koshi", "Madhesh", "Bagmati", "Gandaki", "Lumbini", "Karnali", "Sudurpashchim"};
-                                   for (String p : provinces) { %>
-                                    <option value="<%= p %>" <%= (isEdit && p.equals(m.getProvince())) ? "selected" : "" %>><%= p %></option>
-                                <% } %>
-                            </select>
-                        </div>
+                        <label for="categoryName">Category Name <span class="required">*</span></label>
+                        <input type="text" id="categoryName" name="categoryName" 
+                               placeholder="e.g. Road Maintenance, Waste Management" 
+                               value="<%= isEdit ? category.getName() : "" %>" required>
+                        <p class="help-text">Choose a clear, concise name that citizens will understand.</p>
                     </div>
 
                     <div style="margin-top: 2rem;">
                         <button type="submit" class="btn-primary">
                             <i class="fas <%= isEdit ? "fa-save" : "fa-plus" %>"></i> 
-                            <%= isEdit ? "Save Municipality" : "Create Municipality" %>
+                            <%= isEdit ? "Save Changes" : "Create Category" %>
                         </button>
                     </div>
                 </form>

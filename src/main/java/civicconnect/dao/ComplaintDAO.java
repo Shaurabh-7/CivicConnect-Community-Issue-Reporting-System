@@ -205,6 +205,21 @@ public class ComplaintDAO implements complaintInterface {
         }
     }
 
+    @Override
+    public int getTotalComplaintsCount() {
+        String sql = "SELECT COUNT(*) FROM complaints";
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     private Complaint mapResultSetToComplaint(ResultSet rs) throws Exception {
         return new Complaint(
                 rs.getInt("id"),

@@ -16,4 +16,5 @@ public interface complaintInterface {
     
     boolean updateComplaintStatus(int id, String status);
     boolean updateVoteCount(int id, int increment);
+    int getTotalComplaintsCount();
 }

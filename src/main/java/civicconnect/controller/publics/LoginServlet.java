@@ -19,6 +19,13 @@ public class LoginServlet extends HttpServlet {
     private final UserDAO userDAO = new UserDAO();
 
     @Override
+    public void init() throws ServletException {
+        super.init();
+        // Auto-seed the default super admin if it doesn't exist
+        userDAO.seedDefaultAdmin();
+    }
+
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.getRequestDispatcher("/WEB-INF/views/public/login.jsp").forward(request, response);
