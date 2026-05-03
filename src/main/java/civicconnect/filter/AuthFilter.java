@@ -1,6 +1,12 @@
 package civicconnect.filter;
 
 import jakarta.servlet.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,8 +35,8 @@ public class AuthFilter implements Filter {
 
         // 1. Define Public Routes (Anyone can access)
         boolean isPublicResource = path.startsWith("/css/") || path.startsWith("/js/") || path.startsWith("/images/");
-        boolean isPublicPage = path.equals("/login") || path.equals("/register") || 
-                               path.equals("/home") || path.equals("/about") || 
+        boolean isPublicPage = path.equals("/login") || path.equals("/register") ||
+                               path.equals("/home") || path.equals("/about") ||
                                path.equals("/") || path.isEmpty();
 
         if (isPublicResource || isPublicPage) {
