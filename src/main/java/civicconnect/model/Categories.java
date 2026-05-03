@@ -31,9 +31,17 @@ public class Categories {
         this.createdAt = createdAt;
     }
 
+    public Categories() {
+    }
+
+    public Categories(int id, String name, LocalDateTime createdAt) {
+        this.id = id;
+        this.name = name;
+        this.createdAt = createdAt;
+    }
+
     public Categories(String name) {
         this.name = name;
     }
 
-    
 }

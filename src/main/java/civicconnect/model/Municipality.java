@@ -58,6 +58,17 @@ public class Municipality {
         this.createdAt = createdAt;
     }
 
+    public Municipality() {}
+
+    public Municipality(int id, String name, String district, String province, String status, LocalDateTime createdAt) {
+        this.id = id;
+        this.name = name;
+        this.district = district;
+        this.province = province;
+        this.status = status;
+        this.createdAt = createdAt;
+    }
+
     public Municipality(String name, String district, String province, String status) {
         this.name = name;
         this.district = district;

@@ -19,6 +19,8 @@ public class Complaint {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    public Complaint() {}
+
     public int getId() {
         return id;
     }
