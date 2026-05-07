@@ -110,4 +110,16 @@ public class Users {
         this.status = status;
         this.createdAt = createdAt;
     }
+
+    public Users(String fullName, String email, String phone, String passwordHash, String role, Integer municipalityId, Integer wardNumber, String status, LocalDateTime createdAt) {
+        this.fullName = fullName;
+        this.email = email;
+        this.phone = phone;
+        this.passwordHash = passwordHash;
+        this.role = role;
+        this.municipalityId = municipalityId;
+        this.wardNumber = wardNumber;
+        this.status = status;
+        this.createdAt = createdAt;
+    }
 }
