@@ -4,6 +4,7 @@
 <head>
     <title>Manage Categories - CivicConnect</title>
 </head>
+
 <body>
     <h1>Manage Complaint Categories</h1>
 </body>
