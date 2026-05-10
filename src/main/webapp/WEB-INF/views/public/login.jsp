@@ -1,7 +1,17 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="jakarta.servlet.http.Cookie" %>
 
-
+<% String rememberedEmail = "";
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (Cookie cookie :
+                cookies) {
+            if ("rememberedEmail".equals(cookie.getName())) {
+                rememberedEmail = cookie.getValue();
+                break;
+            }
+        }
+    }
     String retainEmail = (String) request.getAttribute("retainEmail");
     if (retainEmail == null)
         retainEmail = rememberedEmail;
