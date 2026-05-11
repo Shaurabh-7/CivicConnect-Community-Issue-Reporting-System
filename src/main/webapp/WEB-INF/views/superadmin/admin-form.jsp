@@ -8,6 +8,7 @@
     boolean isEdit = request.getAttribute("isEdit") != null && (boolean) request.getAttribute("isEdit");
     String title = isEdit ? "Edit Admin" : "Add New Admin";
 %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
