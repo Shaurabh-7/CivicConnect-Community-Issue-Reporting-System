@@ -817,29 +817,10 @@ select:focus {
     max-width: 100%;
 }
 
-.stat-card {
-    border: 1px solid #f1f5f9;
+.citizen-dashboard .stats-grid {
+    margin-top: 2rem;
 }
 
-.icon-blue {
-    border-bottom: 3px solid #2563eb;
-    border-radius: 0;
-}
-
-.icon-orange {
-    border-bottom: 3px solid #ea580c;
-    border-radius: 0;
-}
-
-.icon-purple {
-    border-bottom: 3px solid #9333ea;
-    border-radius: 0;
-}
-
-.icon-green {
-    border-bottom: 3px solid #16a34a;
-    border-radius: 0;
-}
 
 .quick-actions {
     grid-template-columns: repeat(4, 1fr);

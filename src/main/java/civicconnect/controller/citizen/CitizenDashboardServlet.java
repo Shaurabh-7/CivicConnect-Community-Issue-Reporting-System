@@ -4,7 +4,6 @@ import civicconnect.dao.ComplaintDAO;
 import civicconnect.dao.MunicipalityDAO;
 import civicconnect.dao.UserDAO;
 import civicconnect.dto.complaint.ComplaintDTO;
-import civicconnect.model.Complaint;
 import civicconnect.model.Municipality;
 import civicconnect.model.Users;
 import jakarta.servlet.ServletException;
@@ -35,8 +34,7 @@ public class CitizenDashboardServlet extends HttpServlet {
         }
 
         int userId = (int) session.getAttribute("userId");
-        
-        // 1. Fetch User and Municipality Info
+
         Users user = userDAO.getUserById(userId);
         if (user != null && user.getMunicipalityId() != null) {
             Municipality municipality = municipalityDAO.getMunicipalityById(user.getMunicipalityId());
@@ -44,7 +42,6 @@ public class CitizenDashboardServlet extends HttpServlet {
             request.setAttribute("user", user);
         }
 
-        // 2. Fetch Stats
         int totalSubmitted = complaintDAO.getTotalComplaintsCountByUser(userId);
         int pendingCount = complaintDAO.getComplaintsCountByUserAndStatus(userId, "pending");
         int inProgressCount = complaintDAO.getComplaintsCountByUserAndStatus(userId, "in progress");
@@ -55,11 +52,9 @@ public class CitizenDashboardServlet extends HttpServlet {
         request.setAttribute("inProgressCount", inProgressCount);
         request.setAttribute("resolvedCount", resolvedCount);
 
-        // 3. Fetch Recent Complaints
         ArrayList<ComplaintDTO> recentComplaints = complaintDAO.getRecentComplaintsByUser(userId, 5);
         request.setAttribute("recentComplaints", recentComplaints);
 
-        // 4. Forward to Dashboard JSP
         request.getRequestDispatcher("/WEB-INF/views/citizen/dashboard.jsp").forward(request, response);
     }
 }
