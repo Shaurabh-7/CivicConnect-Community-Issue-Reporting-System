@@ -2,6 +2,7 @@ package civicconnect.dao;
 
 import civicconnect.daoInterface.complaintInterface;
 import civicconnect.model.Complaint;
+import civicconnect.dto.complaint.ComplaintDTO;
 import civicconnect.utils.DBConnection;
 
 import java.sql.Connection;
@@ -206,11 +207,70 @@ public class ComplaintDAO implements complaintInterface {
     }
 
     @Override
+    public ArrayList<ComplaintDTO> getRecentComplaintsByUser(int userId, int limit) {
+        ArrayList<ComplaintDTO> list = new ArrayList<>();
+        String sql = "SELECT c.*, cat.name as category_name FROM complaints c " +
+                     "LEFT JOIN categories cat ON c.category_id = cat.id " +
+                     "WHERE c.user_id = ? ORDER BY c.created_at DESC LIMIT ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ps.setInt(2, limit);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                list.add(mapResultSetToComplaintDTO(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public int getComplaintsCountByUserAndStatus(int userId, String status) {
+        String sql = "SELECT COUNT(*) FROM complaints WHERE user_id = ? AND status = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ps.setString(2, status);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
     public int getTotalComplaintsCount() {
         String sql = "SELECT COUNT(*) FROM complaints";
         try (Connection conn = DBConnection.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public int getTotalComplaintsCountByUser(int userId) {
+        String sql = "SELECT COUNT(*) FROM complaints WHERE user_id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
             if (rs.next()) {
                 return rs.getInt(1);
             }
@@ -238,5 +298,30 @@ public class ComplaintDAO implements complaintInterface {
                 rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toLocalDateTime() : null,
                 rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toLocalDateTime() : null
         );
+    }
+
+    private ComplaintDTO mapResultSetToComplaintDTO(ResultSet rs) throws Exception {
+        ComplaintDTO dto = new ComplaintDTO();
+        dto.setId(rs.getInt("id"));
+        dto.setUserId(rs.getInt("user_id"));
+        dto.setMunicipalityId(rs.getInt("municipality_id"));
+        dto.setCategoryId(rs.getInt("category_id"));
+        dto.setTitle(rs.getString("title"));
+        dto.setDescription(rs.getString("description"));
+        dto.setWardNumber(rs.getInt("ward_number"));
+        dto.setLocation(rs.getString("location"));
+        dto.setImagePath(rs.getString("image_path"));
+        dto.setAnonymous(rs.getBoolean("is_anonymous"));
+        dto.setStatus(rs.getString("status"));
+        dto.setVoteCount(rs.getInt("vote_count"));
+        dto.setContactEmail(rs.getString("contact_email"));
+        dto.setCreatedAt(rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toLocalDateTime() : null);
+        dto.setUpdatedAt(rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toLocalDateTime() : null);
+        
+        try {
+            dto.setCategoryName(rs.getString("category_name"));
+        } catch (Exception ignored) {}
+        
+        return dto;
     }
 }
