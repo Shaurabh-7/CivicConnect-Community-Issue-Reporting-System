@@ -8,12 +8,11 @@
 %>
 <nav class="navbar citizen-nav">
     <div class="nav-container">
-        <!-- Left Side: Logo + Nav Links -->
         <div class="nav-left-group">
-            <div class="nav-logo">
+            <a href="<%= request.getContextPath() %>/citizen/dashboard" class="nav-logo">
                 <div class="logo-box">CC</div>
                 <span>CivicConnect</span>
-            </div>
+            </a>
             <div class="nav-links">
                 <a href="<%= request.getContextPath() %>/citizen/dashboard" class="<%= currentUri.contains("dashboard") ? "active" : "" %>">HOME</a>
                 <a href="<%= request.getContextPath() %>/citizen/submit-complaint" class="<%= currentUri.contains("submit") ? "active" : "" %>">SUBMIT COMPLAINT</a>
@@ -22,16 +21,13 @@
             </div>
         </div>
 
-        <!-- Right Side: User Profile + Logout -->
         <div class="nav-right-group">
             <div class="user-profile-section">
                 <div class="user-avatar-circle">
                     <%= userName != null ? userName.substring(0, 1).toUpperCase() : "U" %>
                 </div>
-                <div class="user-info-text">
-                    <span class="user-full-info">
-                        <%= userName %> &nbsp;•&nbsp; <%= munName %>
-                    </span>
+                <div class="user-full-info">
+                    <%= userName %> • <%= munName %>
                 </div>
                 <a href="<%= request.getContextPath() %>/logout" class="btn-logout-outline">Logout</a>
             </div>

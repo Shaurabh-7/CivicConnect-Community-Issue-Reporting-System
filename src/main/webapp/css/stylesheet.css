@@ -697,124 +697,118 @@ select:focus {
     color: #991b1b;
 }
 
-/* =========================================
-   FIXED CITIZEN DASHBOARD NAVBAR
-   ========================================= */
-
-.citizen-nav {
+/* Higher specificity than .navbar — citizen nav is one full-width flex row */
+.navbar.citizen-nav {
     background-color: #1e3a8a !important;
     padding: 0 !important;
-    height: 70px !important;
+    height: 70px;
     display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    width: 100% !important;
-    max-width: 100% !important;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
     position: sticky;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1000;
+    margin: 0;
+    box-sizing: border-box;
 }
 
-.citizen-nav .nav-container {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 0 3% !important;
-    display: flex !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    flex-wrap: nowrap !important; /* Prevent vertical wrapping */
-}
-
-.nav-left-group, .nav-right-group {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    flex-wrap: nowrap !important;
+.navbar.citizen-nav .nav-container {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 100%;
+    padding: 0 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
 }
 
 .nav-left-group {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
     gap: 3rem;
 }
 
 .citizen-nav .nav-logo {
     display: flex !important;
     flex-direction: row !important;
-    align-items: center !important;
-    gap: 12px;
-    color: white !important;
-    text-decoration: none !important;
-    flex-shrink: 0;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    text-decoration: none;
 }
 
 .nav-links {
     display: flex !important;
     flex-direction: row !important;
-    align-items: center !important;
     gap: 1.5rem;
-    flex-shrink: 0;
 }
 
 .nav-links a {
-    color: rgba(255, 255, 255, 0.85) !important;
-    text-decoration: none !important;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
     font-size: 0.85rem;
     font-weight: 600;
     letter-spacing: 0.5px;
     white-space: nowrap;
 }
 
-.nav-links a:hover, 
-.nav-links a.active {
-    color: white !important;
+.nav-links a.active,
+.nav-links a:hover {
+    color: white;
+}
+
+.nav-right-group {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
 }
 
 .user-profile-section {
     display: flex !important;
     flex-direction: row !important;
-    align-items: center !important;
+    align-items: center;
     gap: 15px;
     white-space: nowrap;
-    flex-shrink: 0;
+    /* Forces horizontal */
 }
 
 .user-avatar-circle {
     width: 36px;
     height: 36px;
-    background-color: #3b82f6 !important;
-    color: white !important;
-    border-radius: 50% !important;
+    background-color: #3b82f6;
+    color: white;
+    border-radius: 50%;
     display: flex !important;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     font-size: 0.85rem;
-    flex-shrink: 0;
 }
 
 .user-full-info {
-    color: white !important;
+    color: white;
     font-size: 0.85rem;
     font-weight: 500;
 }
 
 .btn-logout-outline {
-    border: 1px solid rgba(255, 255, 255, 0.4) !important;
-    color: white !important;
-    text-decoration: none !important;
-    padding: 6px 14px !important;
-    border-radius: 6px !important;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 6px;
     font-size: 0.8rem;
     font-weight: 600;
     margin-left: 10px;
-    flex-shrink: 0;
-}
-
-.btn-logout-outline:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border-color: white !important;
 }
 
 /* Dashboard Content Padding */
