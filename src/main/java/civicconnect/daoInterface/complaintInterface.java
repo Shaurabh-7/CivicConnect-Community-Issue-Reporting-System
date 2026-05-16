@@ -32,8 +32,16 @@ public interface complaintInterface {
     ArrayList<ComplaintDTO> getRecentComplaintsByUser(int userId, int limit);
 
     int getComplaintsCountByUserAndStatus(int userId, String status);
+
+    int getResolvedComplaintsCount();
+    
+    int getInProgressComplaintsCount();
     
     ArrayList<ComplaintDTO> getFilteredComplaintsByUser(int userId, String status, Integer categoryId, String searchQuery);
-    
+
     ComplaintDTO getComplaintDTOById(int id);
+
+    ArrayList<ComplaintDTO> getPublicComplaintsByMunicipality(int municipalityId, String status, Integer categoryId, String searchQuery, String sortBy);
+
+    ArrayList<ComplaintDTO> getTopSupportedComplaints(int municipalityId, int limit);
 }

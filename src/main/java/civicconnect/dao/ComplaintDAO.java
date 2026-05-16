@@ -248,6 +248,28 @@ public class ComplaintDAO implements complaintInterface {
     }
 
     @Override
+    public int getResolvedComplaintsCount() {
+        String sql = "SELECT COUNT(*) FROM complaints WHERE status = 'resolved'";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    @Override
+    public int getInProgressComplaintsCount() {
+        String sql = "SELECT COUNT(*) FROM complaints WHERE status = 'in progress'";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    @Override
     public int getTotalComplaintsCount() {
         String sql = "SELECT COUNT(*) FROM complaints";
         try (Connection conn = DBConnection.getConnection();
@@ -350,6 +372,87 @@ public class ComplaintDAO implements complaintInterface {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public ArrayList<ComplaintDTO> getPublicComplaintsByMunicipality(int municipalityId, String status, Integer categoryId, String searchQuery, String sortBy) {
+        ArrayList<ComplaintDTO> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT c.*, cat.name as category_name, u.full_name as user_name, m.name as municipality_name FROM complaints c ");
+        sql.append("LEFT JOIN categories cat ON c.category_id = cat.id ");
+        sql.append("LEFT JOIN users u ON c.user_id = u.id ");
+        sql.append("LEFT JOIN municipalities m ON c.municipality_id = m.id ");
+        sql.append("WHERE 1=1 ");
+
+        if (municipalityId > 0) {
+            sql.append("AND c.municipality_id = ? ");
+        }
+
+        if (status != null && !status.isEmpty() && !"all".equalsIgnoreCase(status)) {
+            sql.append("AND c.status = ? ");
+        }
+        if (categoryId != null && categoryId > 0) {
+            sql.append("AND c.category_id = ? ");
+        }
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            sql.append("AND (c.title LIKE ? OR c.description LIKE ?) ");
+        }
+
+        if ("trending".equalsIgnoreCase(sortBy)) {
+            sql.append("ORDER BY c.vote_count DESC, c.created_at DESC");
+        } else {
+            sql.append("ORDER BY c.created_at DESC");
+        }
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            int paramIdx = 1;
+            if (municipalityId > 0) {
+                ps.setInt(paramIdx++, municipalityId);
+            }
+
+            if (status != null && !status.isEmpty() && !"all".equalsIgnoreCase(status)) {
+                ps.setString(paramIdx++, status);
+            }
+            if (categoryId != null && categoryId > 0) {
+                ps.setInt(paramIdx++, categoryId);
+            }
+            if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+                String lk = "%" + searchQuery.trim() + "%";
+                ps.setString(paramIdx++, lk);
+                ps.setString(paramIdx++, lk);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                ComplaintDTO dto = mapResultSetToComplaintDTO(rs);
+                dto.setUserName(rs.getString("user_name"));
+                dto.setMunicipalityName(rs.getString("municipality_name"));
+                list.add(dto);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public ArrayList<ComplaintDTO> getTopSupportedComplaints(int municipalityId, int limit) {
+        ArrayList<ComplaintDTO> list = new ArrayList<>();
+        String sql = "SELECT c.*, cat.name as category_name FROM complaints c " +
+                     "LEFT JOIN categories cat ON c.category_id = cat.id " +
+                     "WHERE c.municipality_id = ? " +
+                     "ORDER BY c.vote_count DESC LIMIT ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, municipalityId);
+            ps.setInt(2, limit);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToComplaintDTO(rs));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return list;
     }
 
     private Complaint mapResultSetToComplaint(ResultSet rs) throws Exception {

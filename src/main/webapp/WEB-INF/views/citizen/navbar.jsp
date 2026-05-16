@@ -14,7 +14,7 @@
                 <span>CivicConnect</span>
             </a>
             <div class="nav-links">
-                <a href="<%= request.getContextPath() %>/citizen/dashboard" class="<%= currentUri.contains("dashboard") ? "active" : "" %>">HOME</a>
+                <a href="<%= request.getContextPath() %>/citizen/browse" class="<%= currentUri.contains("browse") ? "active" : "" %>">BROWSE</a>
                 <a href="<%= request.getContextPath() %>/citizen/submit-complaint" class="<%= currentUri.contains("submit") ? "active" : "" %>">SUBMIT COMPLAINT</a>
                 <a href="<%= request.getContextPath() %>/citizen/my-complaints" class="<%= currentUri.contains("my-complaints") ? "active" : "" %>">MY COMPLAINTS</a>
                 <a href="<%= request.getContextPath() %>/citizen/profile" class="<%= currentUri.contains("profile") ? "active" : "" %>">PROFILE</a>

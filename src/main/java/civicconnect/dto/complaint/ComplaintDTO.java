@@ -9,6 +9,7 @@ public class ComplaintDTO {
     private int categoryId;
     private String categoryName;
     private String userName;
+    private String municipalityName;
     private String title;
     private String description;
     private int wardNumber;
@@ -68,6 +69,14 @@ public class ComplaintDTO {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getMunicipalityName() {
+        return municipalityName;
+    }
+
+    public void setMunicipalityName(String municipalityName) {
+        this.municipalityName = municipalityName;
     }
 
     public String getTitle() {
