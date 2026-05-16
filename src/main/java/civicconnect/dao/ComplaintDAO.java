@@ -280,6 +280,53 @@ public class ComplaintDAO implements complaintInterface {
         return 0;
     }
 
+    @Override
+    public ArrayList<ComplaintDTO> getFilteredComplaintsByUser(int userId, String status, Integer categoryId, String searchQuery) {
+        ArrayList<ComplaintDTO> list = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT c.*, cat.name as category_name FROM complaints c ");
+        sql.append("LEFT JOIN categories cat ON c.category_id = cat.id ");
+        sql.append("WHERE c.user_id = ? ");
+
+        if (status != null && !status.isEmpty() && !"all".equalsIgnoreCase(status)) {
+            sql.append("AND c.status = ? ");
+        }
+        if (categoryId != null && categoryId > 0) {
+            sql.append("AND c.category_id = ? ");
+        }
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            sql.append("AND (c.title LIKE ? OR c.description LIKE ?) ");
+        }
+
+        sql.append("ORDER BY c.created_at DESC");
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            int paramIdx = 1;
+            ps.setInt(paramIdx++, userId);
+
+            if (status != null && !status.isEmpty() && !"all".equalsIgnoreCase(status)) {
+                ps.setString(paramIdx++, status);
+            }
+            if (categoryId != null && categoryId > 0) {
+                ps.setInt(paramIdx++, categoryId);
+            }
+            if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+                String lk = "%" + searchQuery.trim() + "%";
+                ps.setString(paramIdx++, lk);
+                ps.setString(paramIdx++, lk);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSetToComplaintDTO(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     private Complaint mapResultSetToComplaint(ResultSet rs) throws Exception {
         return new Complaint(
                 rs.getInt("id"),

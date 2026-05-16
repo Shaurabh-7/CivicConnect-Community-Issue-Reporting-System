@@ -3,8 +3,8 @@
 <%
     String currentUri = request.getRequestURI();
     String userName = (String) session.getAttribute("userName");
-    String munName = (String) request.getAttribute("municipalityName");
-    if (munName == null) munName = "Loading...";
+    String munName = (String) session.getAttribute("municipalityName");
+    if (munName == null) munName = "CivicConnect";
 %>
 <nav class="navbar citizen-nav">
     <div class="nav-container">
