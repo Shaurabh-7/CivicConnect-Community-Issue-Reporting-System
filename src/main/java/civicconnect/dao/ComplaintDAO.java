@@ -327,6 +327,31 @@ public class ComplaintDAO implements complaintInterface {
         return list;
     }
 
+    @Override
+    public ComplaintDTO getComplaintDTOById(int id) {
+        String sql = "SELECT c.*, cat.name as category_name, u.full_name as user_name FROM complaints c " +
+                     "LEFT JOIN categories cat ON c.category_id = cat.id " +
+                     "LEFT JOIN users u ON c.user_id = u.id " +
+                     "WHERE c.id = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                ComplaintDTO dto = mapResultSetToComplaintDTO(rs);
+                try {
+                    dto.setUserName(rs.getString("user_name"));
+                } catch (Exception ignored) {}
+                return dto;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     private Complaint mapResultSetToComplaint(ResultSet rs) throws Exception {
         return new Complaint(
                 rs.getInt("id"),

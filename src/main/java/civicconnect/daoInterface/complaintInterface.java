@@ -34,4 +34,6 @@ public interface complaintInterface {
     int getComplaintsCountByUserAndStatus(int userId, String status);
     
     ArrayList<ComplaintDTO> getFilteredComplaintsByUser(int userId, String status, Integer categoryId, String searchQuery);
+    
+    ComplaintDTO getComplaintDTOById(int id);
 }

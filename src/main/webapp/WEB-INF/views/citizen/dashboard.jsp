@@ -112,8 +112,11 @@
                                 <td><%= complaint.getVoteCount() %></td>
                                 <td><%= complaint.getCreatedAt().format(formatter) %></td>
                                 <td>
-                                    <% if ("pending".equalsIgnoreCase(complaint.getStatus())) { %>
-                                        <div style="display: flex; gap: 5px;">
+                                    <div style="display: flex; gap: 5px;">
+                                        <a href="<%= request.getContextPath() %>/citizen/view-complaint?id=<%= complaint.getId() %>" class="btn-icon" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <% if ("pending".equalsIgnoreCase(complaint.getStatus())) { %>
                                             <a href="<%= request.getContextPath() %>/citizen/edit-complaint?id=<%= complaint.getId() %>" class="btn-icon" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
@@ -122,10 +125,8 @@
                                                onclick="return confirm('Are you sure you want to delete this complaint?')">
                                                 <i class="fas fa-trash"></i>
                                             </a>
-                                        </div>
-                                    <% } else { %>
-                                        <span class="text-muted" style="font-size: 0.8rem; font-style: italic;">Locked</span>
-                                    <% } %>
+                                        <% } %>
+                                    </div>
                                 </td>
                             </tr>
                         <% } } else { %>

@@ -109,6 +109,9 @@
                                 </td>
                                 <td>
                                     <div style="display: flex; gap: 5px; justify-content: flex-end;">
+                                        <a href="<%= request.getContextPath() %>/citizen/view-complaint?id=<%= c.getId() %>" class="btn-icon" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                         <% if ("pending".equalsIgnoreCase(c.getStatus())) { %>
                                             <a href="<%= request.getContextPath() %>/citizen/edit-complaint?id=<%= c.getId() %>" class="btn-icon" title="Edit">
                                                 <i class="fas fa-edit"></i>
@@ -117,10 +120,6 @@
                                                class="btn-icon btn-icon-danger" title="Delete"
                                                onclick="return confirm('Are you sure you want to delete this complaint?')">
                                                 <i class="fas fa-trash"></i>
-                                            </a>
-                                        <% } else { %>
-                                            <a href="<%= request.getContextPath() %>/citizen/view-complaint?id=<%= c.getId() %>" class="btn-icon" title="View Details">
-                                                <i class="fas fa-eye"></i>
                                             </a>
                                         <% } %>
                                     </div>
