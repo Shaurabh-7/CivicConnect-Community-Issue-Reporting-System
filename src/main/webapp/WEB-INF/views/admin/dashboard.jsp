@@ -80,10 +80,10 @@
                                         <td>
                                             <c:choose>
                                                 <c:when test="${complaint.anonymous}">
-                                                    <c:out value="${complaint.userFullName}" /> <span class="badge badge-secondary">Anonymous</span>
+                                                    <c:out value="${complaint.userName}" /> <span class="badge badge-secondary">Anonymous</span>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <c:out value="${complaint.userFullName}" />
+                                                    <c:out value="${complaint.userName}" />
                                                 </c:otherwise>
                                             </c:choose>
                                         </td>
