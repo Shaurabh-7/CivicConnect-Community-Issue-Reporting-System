@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.mindrot.jbcrypt.BCrypt;
+import civicconnect.utils.PasswordUtil;
 
 import java.io.IOException;
 
@@ -52,7 +52,7 @@ public class LoginServlet extends HttpServlet {
         Users user = userDAO.getUserByEmail(email.trim());
 
         // Generic error if not found OR wrong password
-        if (user == null || !BCrypt.checkpw(password, user.getPasswordHash())) {
+        if (user == null || !PasswordUtil.checkPassword(password, user.getPasswordHash())) {
             request.setAttribute("errorMessage", "Invalid email or password.");
             request.setAttribute("retainEmail", email);
             request.getRequestDispatcher("/WEB-INF/views/public/login.jsp").forward(request, response);

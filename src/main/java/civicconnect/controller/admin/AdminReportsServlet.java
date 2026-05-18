@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import civicconnect.utils.DateUtil;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -95,9 +96,8 @@ public class AdminReportsServlet extends HttpServlet {
         request.setAttribute("topSupported", topSupported);
 
         // 5. Recent Activity (7 days, 30 days)
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime sevenDaysAgo = now.minusDays(7);
-        LocalDateTime thirtyDaysAgo = now.minusDays(30);
+        LocalDateTime sevenDaysAgo = DateUtil.daysAgo(7);
+        LocalDateTime thirtyDaysAgo = DateUtil.daysAgo(30);
 
         long newLast7Days = allComplaints.stream().filter(c -> c.getCreatedAt().isAfter(sevenDaysAgo)).count();
         long newLast30Days = allComplaints.stream().filter(c -> c.getCreatedAt().isAfter(thirtyDaysAgo)).count();

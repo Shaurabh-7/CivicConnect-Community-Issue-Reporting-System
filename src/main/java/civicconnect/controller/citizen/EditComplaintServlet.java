@@ -13,11 +13,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.UUID;
+import civicconnect.utils.FileUploadUtil;
 
 @WebServlet("/citizen/edit-complaint")
 @MultipartConfig(
@@ -87,16 +85,9 @@ public class EditComplaintServlet extends HttpServlet {
         // Handle Image Upload (Optional)
         String imagePath = existingComplaint.getImagePath(); // Keep old one by default
         Part filePart = request.getPart("image");
-        if (filePart != null && filePart.getSize() > 0) {
-            String fileName = UUID.randomUUID().toString() + "_" + Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-            String uploadPath = getServletContext().getRealPath("") + File.separator + "uploads" + File.separator + "complaints";
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) uploadDir.mkdirs();
-            
-            filePart.write(uploadPath + File.separator + fileName);
-            imagePath = "uploads/complaints/" + fileName;
-            
-            // Note: In a real app, we might want to delete the old file here
+        String newImagePath = FileUploadUtil.saveImage(filePart, getServletContext().getRealPath(""), "uploads/complaints");
+        if (newImagePath != null) {
+            imagePath = newImagePath;
         }
 
         // Update object

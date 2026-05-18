@@ -5,6 +5,7 @@ import civicconnect.model.Users;
 import civicconnect.dto.user.UserDTO;
 import civicconnect.utils.DBConnection;
 
+import civicconnect.utils.PasswordUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -325,7 +326,7 @@ public class UserDAO implements userInterface {
                     ips.setString(2, "admin@gmail.com");
                     ips.setString(3, "9800000000");
                     // Hash for Admin@123
-                    ips.setString(4, org.mindrot.jbcrypt.BCrypt.hashpw("Admin@123", org.mindrot.jbcrypt.BCrypt.gensalt(12)));
+                    ips.setString(4, PasswordUtil.hashPassword("Admin@123"));
                     ips.setString(5, "super_admin");
                     ips.setString(6, "active");
                     ips.executeUpdate();

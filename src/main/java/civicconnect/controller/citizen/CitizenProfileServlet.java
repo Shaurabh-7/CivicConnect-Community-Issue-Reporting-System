@@ -8,7 +8,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.mindrot.jbcrypt.BCrypt;
+import civicconnect.utils.PasswordUtil;
+import civicconnect.utils.Validator;
 
 import java.io.IOException;
 
@@ -47,8 +48,15 @@ public class CitizenProfileServlet extends HttpServlet {
         if ("updateProfile".equals(action)) {
             String fullName = request.getParameter("fullName");
             String phone = request.getParameter("phone");
-            int wardNumber = Integer.parseInt(request.getParameter("wardNumber"));
+            String wardNumberStr = request.getParameter("wardNumber");
 
+            if (!Validator.isValidName(fullName) || !Validator.isValidPhone(phone) || !Validator.isValidWardNumber(wardNumberStr)) {
+                request.setAttribute("error", "Invalid profile data provided.");
+                doGet(request, response);
+                return;
+            }
+
+            int wardNumber = Integer.parseInt(wardNumberStr);
             Users user = userDAO.getUserById(userId);
             user.setFullName(fullName);
             user.setPhone(phone);
@@ -69,8 +77,14 @@ public class CitizenProfileServlet extends HttpServlet {
 
             Users user = userDAO.getUserById(userId);
 
-            if (!BCrypt.checkpw(currentPassword, user.getPasswordHash())) {
+            if (!PasswordUtil.checkPassword(currentPassword, user.getPasswordHash())) {
                 request.setAttribute("error", "Current password is incorrect.");
+                doGet(request, response);
+                return;
+            }
+
+            if (!Validator.isValidPassword(newPassword)) {
+                request.setAttribute("error", "Password must be at least 8 characters with upper, lower, and number.");
                 doGet(request, response);
                 return;
             }
@@ -81,7 +95,7 @@ public class CitizenProfileServlet extends HttpServlet {
                 return;
             }
 
-            String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+            String hashed = PasswordUtil.hashPassword(newPassword);
             if (userDAO.changePassword(userId, hashed)) {
                 response.sendRedirect(request.getContextPath() + "/citizen/profile?success=Password+changed");
             } else {
