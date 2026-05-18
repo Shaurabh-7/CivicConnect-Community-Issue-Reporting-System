@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.mindrot.jbcrypt.BCrypt;
+import civicconnect.utils.PasswordUtil;
 
 import java.io.IOException;
 
@@ -69,7 +69,7 @@ public class CitizenProfileServlet extends HttpServlet {
 
             Users user = userDAO.getUserById(userId);
 
-            if (!BCrypt.checkpw(currentPassword, user.getPasswordHash())) {
+            if (!PasswordUtil.checkPassword(currentPassword, user.getPasswordHash())) {
                 request.setAttribute("error", "Current password is incorrect.");
                 doGet(request, response);
                 return;
@@ -81,7 +81,7 @@ public class CitizenProfileServlet extends HttpServlet {
                 return;
             }
 
-            String hashed = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+            String hashed = PasswordUtil.hashPassword(newPassword);
             if (userDAO.changePassword(userId, hashed)) {
                 response.sendRedirect(request.getContextPath() + "/citizen/profile?success=Password+changed");
             } else {

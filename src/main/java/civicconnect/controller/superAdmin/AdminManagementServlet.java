@@ -10,7 +10,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.mindrot.jbcrypt.BCrypt;
+import civicconnect.utils.PasswordUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public class AdminManagementServlet extends HttpServlet {
 
         if ("add".equals(action)) {
             String password = request.getParameter("password");
-            String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt(12));
+            String passwordHash = PasswordUtil.hashPassword(password);
             
             Users admin = new Users(0, fullName, email, phone, passwordHash, "municipality_admin", municipalityId, null, "active", null);
             boolean success = userDAO.registerUser(admin);
