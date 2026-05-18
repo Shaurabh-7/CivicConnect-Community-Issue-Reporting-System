@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <% String currentPath = request.getServletPath(); %>
+
 <aside class="sidebar">
     <div class="sidebar-header">
         <div class="logo-box">CC</div>

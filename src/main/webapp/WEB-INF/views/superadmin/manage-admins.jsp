@@ -4,7 +4,9 @@
 <head>
     <title>Manage Admins - CivicConnect</title>
 </head>
+
 <body>
-    <h1>Manage Municipality Admins</h1>
+<h1>Manage Municipality Admins</h1>
 </body>
+
 </html>

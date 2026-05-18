@@ -5,6 +5,7 @@
     boolean isEdit = request.getAttribute("isEdit") != null && (boolean) request.getAttribute("isEdit");
     String title = isEdit ? "Edit Municipality" : "Add New Municipality";
 %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
