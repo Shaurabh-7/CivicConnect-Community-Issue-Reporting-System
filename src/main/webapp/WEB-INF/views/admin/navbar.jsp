@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
+
 <nav class="navbar">
     <div class="nav-container">
         <a href="${pageContext.request.contextPath}/" class="logo">CivicConnect Admin</a>
