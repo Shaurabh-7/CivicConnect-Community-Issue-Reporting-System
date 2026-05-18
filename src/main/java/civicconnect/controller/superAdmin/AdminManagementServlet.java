@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import civicconnect.utils.PasswordUtil;
+import civicconnect.utils.Validator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,8 +70,21 @@ public class AdminManagementServlet extends HttpServlet {
         Integer municipalityId = (municipalityIdStr != null && !municipalityIdStr.isEmpty()) 
                                 ? Integer.parseInt(municipalityIdStr) : null;
 
+        if (!Validator.isValidName(fullName) || !Validator.isValidEmail(email) || !Validator.isValidPhone(phone)) {
+            request.setAttribute("errorMessage", "Invalid input for name, email, or phone.");
+            request.setAttribute("municipalities", municipalityDAO.getActiveMunicipalities());
+            request.getRequestDispatcher("/WEB-INF/views/superadmin/admin-form.jsp").forward(request, response);
+            return;
+        }
+
         if ("add".equals(action)) {
             String password = request.getParameter("password");
+            if (!Validator.isValidPassword(password)) {
+                request.setAttribute("errorMessage", "Invalid password format.");
+                request.setAttribute("municipalities", municipalityDAO.getActiveMunicipalities());
+                request.getRequestDispatcher("/WEB-INF/views/superadmin/admin-form.jsp").forward(request, response);
+                return;
+            }
             String passwordHash = PasswordUtil.hashPassword(password);
             
             Users admin = new Users(0, fullName, email, phone, passwordHash, "municipality_admin", municipalityId, null, "active", null);
