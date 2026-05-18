@@ -5,6 +5,8 @@
     boolean isEdit = request.getAttribute("isEdit") != null && (boolean) request.getAttribute("isEdit");
     String title = isEdit ? "Edit Category" : "Add New Category";
 %>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
