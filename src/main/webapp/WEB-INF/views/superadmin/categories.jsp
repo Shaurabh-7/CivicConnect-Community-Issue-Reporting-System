@@ -4,6 +4,8 @@
 <%
     ArrayList<Categories> categories = (ArrayList<Categories>) request.getAttribute("categories");
 %>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
