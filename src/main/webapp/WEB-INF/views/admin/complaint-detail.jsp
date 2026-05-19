@@ -270,7 +270,7 @@
                 </c:if>
             </aside>
         </div>
-    </main>>
+    </main>
 
     <footer class="dashboard-footer" style="margin-left: 240px; background-color: #1e3a8a; color: rgba(255, 255, 255, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 2rem 2.5rem;">
         <div class="footer-content">

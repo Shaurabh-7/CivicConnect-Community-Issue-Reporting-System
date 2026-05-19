@@ -15,7 +15,6 @@ import civicconnect.utils.DateUtil;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @WebServlet("/admin/reports")
 public class AdminReportsServlet extends HttpServlet {
@@ -81,10 +80,10 @@ public class AdminReportsServlet extends HttpServlet {
                         int ward = c.getWardNumber();
                         wardCounts.put(ward, wardCounts.getOrDefault(ward, 0) + 1);
                 }
-                
+
                 List<Map.Entry<Integer, Integer>> wardEntryList = new ArrayList<>(wardCounts.entrySet());
                 wardEntryList.sort((e1, e2) -> e2.getValue().compareTo(e1.getValue()));
-                
+
                 Map<Integer, Integer> sortedWardCounts = new LinkedHashMap<>();
                 for (Map.Entry<Integer, Integer> entry : wardEntryList) {
                         sortedWardCounts.put(entry.getKey(), entry.getValue());
@@ -118,7 +117,7 @@ public class AdminReportsServlet extends HttpServlet {
                                         newLast30Days++;
                                 }
                         }
-                        
+
                         // Resolved complaints in last 7 / 30 days
                         if ("resolved".equalsIgnoreCase(c.getStatus()) && c.getUpdatedAt() != null) {
                                 if (c.getUpdatedAt().isAfter(sevenDaysAgo)) {
