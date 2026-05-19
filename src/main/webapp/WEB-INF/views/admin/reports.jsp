@@ -2,22 +2,22 @@
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
 <%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports - CivicConnect</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/stylesheet.css">
-    <style>
-        .report-section { margin-bottom: 3rem; background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .report-section h3 { margin-top: 0; color: #333; border-bottom: 2px solid #0056b3; padding-bottom: 0.5rem; margin-bottom: 1rem; }
-        .grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-        @media (max-width: 768px) { .grid-2-col { grid-template-columns: 1fr; } }
-    </style>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/stylesheet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <jsp:include page="navbar.jsp" />
 
-    <main class="container">
-        <h2>Analytics & Reports - <c:out value="${sessionScope.municipalityName}" /></h2>
+    <main class="admin-main-content">
+        <div class="admin-page-header">
+            <h1>Analytics & Reports</h1>
+            <p>Performance Stats · Sunsari District, Province 1</p>
+        </div>
         
         <p>This page provides a statistical overview of the civic issues reported in your municipality.</p>
 
@@ -147,7 +147,7 @@
                     <c:forEach var="complaint" items="${topSupported}" varStatus="status">
                         <tr>
                             <td>#<c:out value="${status.index + 1}" /></td>
-                            <td><a href="${pageContext.request.contextPath}/admin/complaint-detail?id=${complaint.id}"><c:out value="${complaint.title}" /></a></td>
+                            <td><a href="<%= request.getContextPath() %>/admin/complaint-detail?id=${complaint.id}"><c:out value="${complaint.title}" /></a></td>
                             <td><c:out value="${complaint.categoryName}" /></td>
                             <td><c:out value="${complaint.status}" /></td>
                             <td><strong><c:out value="${complaint.voteCount}" /></strong></td>
@@ -161,5 +161,16 @@
         </section>
 
     </main>
+
+    <footer class="dashboard-footer" style="margin-left: 240px; background-color: #1e3a8a; color: rgba(255, 255, 255, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 2rem 2.5rem;">
+        <div class="footer-content">
+            <p>&copy; 2026 CivicConnect. All rights reserved.</p>
+            <div class="footer-links">
+                <span>Version 1.0.0</span>
+                <span class="separator">|</span>
+                <span>System Status: <span class="status-online">Online</span></span>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

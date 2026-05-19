@@ -3,26 +3,22 @@
 <%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 <%@ taglib uri="jakarta.tags.functions" prefix="fn" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Complaint Details - CivicConnect</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/stylesheet.css">
-    <style>
-        .detail-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
-        .admin-box { background: #f8f9fa; border: 1px solid #ddd; padding: 1.5rem; border-radius: 8px; }
-        .admin-box h3 { margin-top: 0; color: #333; border-bottom: 1px solid #ccc; padding-bottom: 0.5rem; }
-        .detail-item { margin-bottom: 1rem; }
-        .detail-item strong { display: block; color: #555; font-size: 0.9em; text-transform: uppercase; }
-        .detail-image img { max-width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .btn-danger { background-color: #dc3545; color: white; border: none; }
-        .btn-danger:hover { background-color: #c82333; }
-        .status-form { margin-top: 1rem; display: flex; gap: 1rem; align-items: center; }
-    </style>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/stylesheet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <jsp:include page="navbar.jsp" />
 
-    <main class="container">
+    <main class="admin-main-content">
+        <div class="admin-page-header">
+            <h1>Complaint Details</h1>
+            <p>Admin Operations Panel · Sunsari District, Province 1</p>
+        </div>
         
         <c:if test="${not empty param.success}">
             <div class="alert alert-success"><c:out value="${param.success}" /></div>
@@ -61,7 +57,7 @@
                 <c:if test="${not empty complaint.imagePath}">
                     <div class="detail-item detail-image">
                         <strong>Evidence Photo</strong>
-                        <img src="${pageContext.request.contextPath}/${complaint.imagePath}" alt="Complaint Photo">
+                        <img src="<%= request.getContextPath() %>/${complaint.imagePath}" alt="Complaint Photo">
                     </div>
                 </c:if>
             </section>
@@ -95,14 +91,14 @@
                     </div>
                     <div class="detail-item">
                         <strong>Date Submitted</strong>
-                        <fmt:formatDate value="${complaint.createdAt}" pattern="yyyy-MM-dd HH:mm:ss" />
+                        <c:out value="${complaint.formattedCreatedAtFull}" />
                     </div>
                 </div>
 
                 <div class="admin-box">
                     <h3>Admin Actions</h3>
                     
-                    <form action="${pageContext.request.contextPath}/admin/complaint-detail" method="POST">
+                    <form action="<%= request.getContextPath() %>/admin/complaint-detail" method="POST">
                         <input type="hidden" name="action" value="updateStatus">
                         <input type="hidden" name="id" value="${complaint.id}">
                         <div class="detail-item">
@@ -121,7 +117,7 @@
 
                     <hr style="margin: 1.5rem 0; border-top: 1px solid #ccc;">
 
-                    <form action="${pageContext.request.contextPath}/admin/complaint-detail" method="POST" onsubmit="return confirm('Are you sure you want to delete this complaint? This action cannot be undone.');">
+                    <form action="<%= request.getContextPath() %>/admin/complaint-detail" method="POST" onsubmit="return confirm('Are you sure you want to delete this complaint? This action cannot be undone.');">
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="id" value="${complaint.id}">
                         <button type="submit" class="btn btn-danger" style="width: 100%;">Delete Complaint</button>
@@ -130,5 +126,16 @@
             </aside>
         </div>
     </main>
+
+    <footer class="dashboard-footer" style="margin-left: 240px; background-color: #1e3a8a; color: rgba(255, 255, 255, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 2rem 2.5rem;">
+        <div class="footer-content">
+            <p>&copy; 2026 CivicConnect. All rights reserved.</p>
+            <div class="footer-links">
+                <span>Version 1.0.0</span>
+                <span class="separator">|</span>
+                <span>System Status: <span class="status-online">Online</span></span>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

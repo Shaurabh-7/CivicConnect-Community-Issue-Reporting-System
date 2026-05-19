@@ -80,12 +80,14 @@ public class LoginServlet extends HttpServlet {
         session.setAttribute("municipalityId", user.getMunicipalityId());
         session.setAttribute("wardNumber", user.getWardNumber());
 
-        // Store Municipality Name in session for the navbar
+        // Store Municipality Name and details in session for the navbar and headers
         if (user.getMunicipalityId() != null) {
             civicconnect.dao.MunicipalityDAO munDAO = new civicconnect.dao.MunicipalityDAO();
             civicconnect.model.Municipality mun = munDAO.getMunicipalityById(user.getMunicipalityId());
             if (mun != null) {
                 session.setAttribute("municipalityName", mun.getName());
+                session.setAttribute("municipalityDistrict", mun.getDistrict());
+                session.setAttribute("municipalityProvince", mun.getProvince());
             }
         }
 

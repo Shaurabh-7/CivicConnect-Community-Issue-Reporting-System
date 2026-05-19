@@ -260,7 +260,7 @@ public class ComplaintDAO implements complaintInterface {
 
     @Override
     public int getInProgressComplaintsCount() {
-        String sql = "SELECT COUNT(*) FROM complaints WHERE status = 'in progress'";
+        String sql = "SELECT COUNT(*) FROM complaints WHERE status = 'in_progress'";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {

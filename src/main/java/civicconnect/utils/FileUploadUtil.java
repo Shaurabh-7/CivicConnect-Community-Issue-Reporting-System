@@ -41,9 +41,29 @@ public class FileUploadUtil {
         }
         String uniqueFileName = UUID.randomUUID().toString() + extension;
 
-        // Save the file
+        // Save the file to deployed folder
         String absoluteFilePath = uploadPath + File.separator + uniqueFileName;
         filePart.write(absoluteFilePath);
+
+        // Also save to source directory in development so it survives restarts/wipes
+        try {
+            String sourceRealPath = appRealPath.replace("target" + File.separator + "CivicConnect-1.0-SNAPSHOT", "src" + File.separator + "main" + File.separator + "webapp");
+            sourceRealPath = sourceRealPath.replace("target" + File.separator + "classes", "src" + File.separator + "main" + File.separator + "webapp");
+            File sourceDir = new File(sourceRealPath + File.separator + uploadDirName);
+            if (sourceDir.getParentFile().exists()) {
+                if (!sourceDir.exists()) {
+                    sourceDir.mkdirs();
+                }
+                File sourceFile = new File(sourceDir, uniqueFileName);
+                java.nio.file.Files.copy(
+                    new File(absoluteFilePath).toPath(),
+                    sourceFile.toPath(),
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING
+                );
+            }
+        } catch (Exception ignored) {
+            // Ignore if we can't write to source path
+        }
 
         // Return relative path for database storage
         return uploadDirName + "/" + uniqueFileName;

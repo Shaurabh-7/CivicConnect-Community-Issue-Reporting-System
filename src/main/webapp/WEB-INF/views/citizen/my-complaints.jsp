@@ -45,7 +45,7 @@
                     <select name="status" onchange="this.form.submit()" style="width: 100%; padding: 0.6rem; border: 1px solid #e2e8f0; border-radius: 6px; background: white;">
                         <option value="all" <%= "all".equals(currentStatus) ? "selected" : "" %>>All Status</option>
                         <option value="pending" <%= "pending".equals(currentStatus) ? "selected" : "" %>>Pending</option>
-                        <option value="in progress" <%= "in progress".equals(currentStatus) ? "selected" : "" %>>In Progress</option>
+                        <option value="in_progress" <%= "in_progress".equals(currentStatus) ? "selected" : "" %>>In Progress</option>
                         <option value="resolved" <%= "resolved".equals(currentStatus) ? "selected" : "" %>>Resolved</option>
                     </select>
                 </div>

@@ -37,6 +37,17 @@ public class AdminDashboardServlet extends HttpServlet {
             return;
         }
 
+        // Defensive check: ensure municipality details are loaded in session
+        if (session.getAttribute("municipalityDistrict") == null) {
+            civicconnect.dao.MunicipalityDAO munDAO = new civicconnect.dao.MunicipalityDAO();
+            civicconnect.model.Municipality mun = munDAO.getMunicipalityById(municipalityId);
+            if (mun != null) {
+                session.setAttribute("municipalityName", mun.getName());
+                session.setAttribute("municipalityDistrict", mun.getDistrict());
+                session.setAttribute("municipalityProvince", mun.getProvince());
+            }
+        }
+
         // Fetch all complaints for the admin's municipality
         ArrayList<Complaint> allComplaints = complaintDAO.getComplaintsByMunicipality(municipalityId);
         

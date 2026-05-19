@@ -44,4 +44,10 @@ public class UserDTO {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public String getFormattedCreatedAt() {
+        if (createdAt == null) return "";
+        java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return createdAt.format(dtf);
+    }
 }

@@ -44,7 +44,7 @@ public class CitizenDashboardServlet extends HttpServlet {
 
         int totalSubmitted = complaintDAO.getTotalComplaintsCountByUser(userId);
         int pendingCount = complaintDAO.getComplaintsCountByUserAndStatus(userId, "pending");
-        int inProgressCount = complaintDAO.getComplaintsCountByUserAndStatus(userId, "in progress");
+        int inProgressCount = complaintDAO.getComplaintsCountByUserAndStatus(userId, "in_progress");
         int resolvedCount = complaintDAO.getComplaintsCountByUserAndStatus(userId, "resolved");
 
         request.setAttribute("totalSubmitted", totalSubmitted);

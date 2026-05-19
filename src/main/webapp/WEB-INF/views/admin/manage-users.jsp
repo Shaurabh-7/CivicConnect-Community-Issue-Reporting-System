@@ -3,16 +3,22 @@
 <%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Users - CivicConnect</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/stylesheet.css">
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/stylesheet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <jsp:include page="navbar.jsp" />
 
-    <main class="container">
-        <h2>Manage Citizens - <c:out value="${sessionScope.municipalityName}" /></h2>
+    <main class="admin-main-content">
+        <div class="admin-page-header">
+            <h1>Manage Users</h1>
+            <p>Admin Control Panel · Sunsari District, Province 1</p>
+        </div>
         
         <c:if test="${not empty param.success}">
             <div class="alert alert-success">
@@ -27,10 +33,10 @@
         </c:if>
 
         <section class="filter-section">
-            <form action="${pageContext.request.contextPath}/admin/manage-users" method="GET" class="filter-form">
+            <form action="<%= request.getContextPath() %>/admin/manage-users" method="GET" class="filter-form">
                 <input type="text" name="search" placeholder="Search by name, email, or phone..." value="<c:out value='${paramSearch}'/>" style="flex: 1;">
                 <button type="submit" class="btn btn-primary">Search</button>
-                <a href="${pageContext.request.contextPath}/admin/manage-users" class="btn btn-secondary">Clear</a>
+                <a href="<%= request.getContextPath() %>/admin/manage-users" class="btn btn-secondary">Clear</a>
             </form>
         </section>
 
@@ -66,9 +72,9 @@
                                             <c:out value="${user.status == 'active' ? 'Active' : 'Inactive'}" />
                                         </span>
                                     </td>
-                                    <td><fmt:formatDate value="${user.createdAt}" pattern="yyyy-MM-dd" /></td>
+                                    <td><c:out value="${user.formattedCreatedAt}" /></td>
                                     <td>
-                                        <form action="${pageContext.request.contextPath}/admin/manage-users" method="POST" style="display:inline;">
+                                        <form action="<%= request.getContextPath() %>/admin/manage-users" method="POST" style="display:inline;">
                                             <input type="hidden" name="userId" value="${user.id}">
                                             <c:choose>
                                                 <c:when test="${user.status == 'active'}">
@@ -90,5 +96,16 @@
             </c:choose>
         </section>
     </main>
+
+    <footer class="dashboard-footer" style="margin-left: 240px; background-color: #1e3a8a; color: rgba(255, 255, 255, 0.6); border-top: 1px solid rgba(255, 255, 255, 0.1); padding: 2rem 2.5rem;">
+        <div class="footer-content">
+            <p>&copy; 2026 CivicConnect. All rights reserved.</p>
+            <div class="footer-links">
+                <span>Version 1.0.0</span>
+                <span class="separator">|</span>
+                <span>System Status: <span class="status-online">Online</span></span>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
