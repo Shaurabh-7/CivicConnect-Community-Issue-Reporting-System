@@ -8,6 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import civicconnect.utils.Validator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,6 +57,19 @@ public class MunicipalityManagementServlet extends HttpServlet {
         String name = request.getParameter("name");
         String district = request.getParameter("district");
         String province = request.getParameter("province");
+
+        if (!Validator.isNotNullOrEmpty(name) || !Validator.isNotNullOrEmpty(district) || !Validator.isNotNullOrEmpty(province)) {
+            request.setAttribute("errorMessage", "All fields are required.");
+            if ("edit".equals(action)) {
+                request.setAttribute("isEdit", true);
+                try {
+                    int id = Integer.parseInt(request.getParameter("id"));
+                    request.setAttribute("municipality", new Municipality(id, name, district, province, null, null));
+                } catch (Exception ignored) {}
+            }
+            request.getRequestDispatcher("/WEB-INF/views/superadmin/municipality-form.jsp").forward(request, response);
+            return;
+        }
 
         if ("add".equals(action)) {
             Municipality m = new Municipality(0, name, district, province, "active", null);

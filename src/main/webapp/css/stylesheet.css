@@ -696,3 +696,752 @@ select:focus {
     background-color: #fee2e2;
     color: #991b1b;
 }
+
+/* Higher specificity than .navbar — citizen nav is one full-width flex row */
+.navbar.citizen-nav {
+    background-color: #1e3a8a !important;
+    padding: 0 !important;
+    height: 70px;
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.navbar.citizen-nav .nav-container {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    height: 100%;
+    padding: 0 2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.nav-left-group {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 3rem;
+}
+
+.citizen-nav .nav-logo {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 1.5rem;
+}
+
+.nav-links a {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.nav-links a.active,
+.nav-links a:hover {
+    color: white;
+}
+
+.nav-right-group {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+}
+
+.user-profile-section {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 15px;
+    white-space: nowrap;
+    /* Forces horizontal */
+}
+
+.user-avatar-circle {
+    width: 36px;
+    height: 36px;
+    background-color: #3b82f6;
+    color: white;
+    border-radius: 50%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.user-full-info {
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.btn-logout-outline {
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+/* Dashboard Content Padding */
+.citizen-dashboard {
+    padding: 3rem 10% !important;
+    max-width: 100%;
+}
+
+.citizen-dashboard .stats-grid {
+    margin-top: 2rem;
+}
+
+
+.quick-actions {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+.action-card {
+    background-color: #f8fafc;
+    border: 1px solid #f1f5f9;
+}
+
+.action-icon {
+    background-color: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-footer {
+    padding: 2rem 10%;
+    background-color: #1e3a8a;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Missing Status Badge Colors */
+.status-in_progress {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+}
+
+.status-resolved {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+/* Admin Dashboard Actions */
+.dashboard-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-admin-primary {
+    background-color: var(--primary-color);
+    color: white !important;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+}
+
+.btn-admin-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+}
+
+.btn-admin-secondary {
+    background-color: #64748b;
+    color: white !important;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(100, 116, 139, 0.1);
+}
+
+.btn-admin-secondary:hover {
+    background-color: #475569;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(100, 116, 139, 0.2);
+}
+
+/* ==========================================================================
+   Admin Exact Mockup Theme Styles (matches admin-dashboard.png)
+   ========================================================================== */
+
+/* Top Admin Navbar styling */
+.admin-navbar {
+    background-color: #1e3a8a; /* Theme Blue background */
+    height: 70px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-sizing: border-box;
+}
+
+.admin-nav-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-logo-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.admin-logo-link .logo-box {
+    background-color: #2563eb; /* Blue Box */
+    color: white;
+    font-weight: 800;
+    font-size: 0.95rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+}
+
+.admin-logo-link .logo-text {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: white;
+    letter-spacing: -0.5px;
+}
+
+.admin-nav-links {
+    display: flex;
+    list-style: none;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+}
+
+.admin-nav-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.admin-nav-links a:hover,
+.admin-nav-links a.active {
+    color: white;
+}
+
+.admin-nav-links a.active {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.admin-user-menu {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-avatar-circle {
+    width: 32px;
+    height: 32px;
+    background-color: #10b981; /* Green avatar */
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.admin-user-info {
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.admin-user-info strong {
+    color: white;
+}
+
+.admin-btn-logout {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    margin-left: 8px;
+}
+
+.admin-btn-logout:hover {
+    background-color: white;
+    color: #0f172a;
+}
+
+/* Left Light Sidebar styling */
+.admin-sidebar {
+    width: 240px;
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    bottom: 0;
+    z-index: 999;
+    padding: 1.5rem 0;
+    box-sizing: border-box;
+}
+
+.sidebar-section-title {
+    padding: 0 1.5rem;
+    font-size: 0.7rem;
+    color: #94a3b8;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.75rem 1.5rem;
+    color: #475569;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.sidebar-menu a i {
+    width: 16px;
+    color: #64748b;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    color: #2563eb;
+    background-color: #f8fafc;
+}
+
+.sidebar-menu a.active {
+    background-color: #eff6ff;
+    border-left-color: #2563eb;
+    font-weight: 600;
+}
+
+.sidebar-menu a.active i {
+    color: #2563eb;
+}
+
+.admin-sidebar-footer {
+    margin-top: auto;
+    padding: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.admin-sidebar-footer .footer-label {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-bottom: 0.25rem;
+}
+
+.admin-sidebar-footer .footer-username {
+    font-size: 0.85rem;
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.admin-sidebar-footer .footer-role {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+/* Admin Main Content styling */
+.admin-main-content {
+    margin-left: 240px;
+    margin-top: 70px;
+    padding: 2.5rem;
+    min-height: calc(100vh - 70px);
+    background-color: #f8fafc;
+    box-sizing: border-box;
+}
+
+.admin-page-header {
+    margin-bottom: 2rem;
+}
+
+.admin-page-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 0.25rem;
+}
+
+.admin-page-header p {
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+/* Stats Grids */
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-stats-grid-secondary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.admin-stat-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    box-sizing: border-box;
+}
+
+.card-border-blue { border-top: 3px solid #3b82f6; }
+.card-border-orange { border-top: 3px solid #f59e0b; }
+.card-border-purple { border-top: 3px solid #a855f7; }
+.card-border-green { border-top: 3px solid #10b981; }
+.card-border-red { border-top: 3px solid #ef4444; }
+
+.admin-stat-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+}
+
+.admin-stat-value {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.admin-stat-subtext {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+/* Outline badging for Category & Status */
+.admin-cat-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    border: 1px solid #bfdbfe;
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    letter-spacing: 0.025em;
+    display: inline-block;
+}
+
+.admin-cat-badge.cat-sanitation {
+    border-color: #fed7aa;
+    background-color: #fff7ed;
+    color: #c2410c;
+}
+
+.admin-cat-badge.cat-water {
+    border-color: #bae6fd;
+    background-color: #f0f9ff;
+    color: #0369a1;
+}
+
+.admin-cat-badge.cat-electricity {
+    border-color: #fef08a;
+    background-color: #fefce8;
+    color: #a16207;
+}
+
+.admin-cat-badge.cat-health {
+    border-color: #fbcfe8;
+    background-color: #fdf2f8;
+    color: #be185d;
+}
+
+.admin-cat-badge.cat-education {
+    border-color: #bae6fd;
+    background-color: #f0f9ff;
+    color: #0369a1;
+}
+
+.admin-cat-badge.cat-corruption {
+    border-color: #fed7aa;
+    background-color: #fff7ed;
+    color: #c2410c;
+}
+
+
+.admin-status-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    letter-spacing: 0.02em;
+    display: inline-block;
+}
+
+.admin-status-pending {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+.admin-status-in_progress {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+.admin-status-resolved {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+/* Beautiful Action Buttons inside Tables */
+.btn-view-outline {
+    background-color: #ffffff;
+    color: #3b82f6 !important;
+    border: 1px solid #3b82f6;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.btn-view-outline:hover {
+    background-color: #f0f7ff;
+}
+
+.btn-action-transition {
+    background-color: #2563eb;
+    color: white !important;
+    border: 1px solid #2563eb;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.btn-action-transition:hover {
+    background-color: #1d4ed8;
+}
+
+.btn-action-resolve {
+    background-color: #10b981;
+    color: white !important;
+    border: 1px solid #10b981;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.btn-action-resolve:hover {
+    background-color: #059669;
+}
+
+/* Table overrides for Admin theme */
+.admin-table-title-link {
+    color: #0f172a;
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.2s;
+}
+
+.admin-table-title-link:hover {
+    color: #2563eb;
+}
+
+/* ==========================================================================
+   Extracted Admin Page Styles (Reports & Complaint Details)
+   ========================================================================== */
+
+/* Reports Page Styles */
+.report-section {
+    margin-bottom: 3rem;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.report-section h3 {
+    margin-top: 0;
+    color: #0f172a;
+    border-bottom: 2px solid #2563eb;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.grid-2-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .grid-2-col {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Admin Complaint Detail Styles */
+.detail-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.admin-box {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.admin-box h3 {
+    margin-top: 0;
+    color: #0f172a;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.detail-item {
+    margin-bottom: 1rem;
+}
+
+.detail-item strong {
+    display: block;
+    color: #64748b;
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+
+.detail-image img {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.btn-danger {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+}
+
+.status-form {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}

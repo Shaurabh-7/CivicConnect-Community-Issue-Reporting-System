@@ -9,7 +9,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.mindrot.jbcrypt.BCrypt;
+import civicconnect.utils.PasswordUtil;
+import civicconnect.utils.Validator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,44 +49,35 @@ public class RegisterServlet extends HttpServlet {
         boolean hasError = false;
 
         // Validations
-        if (fullName == null || !fullName.trim().matches("^[a-zA-Z\\s]{2,}$")) {
+        if (!Validator.isValidName(fullName)) {
             request.setAttribute("errorFullName", "Full name must contain only letters and spaces.");
             hasError = true;
         }
 
-        if (email == null || !email.trim().matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+        if (!Validator.isValidEmail(email)) {
             request.setAttribute("errorEmail", "Please enter a valid email address.");
             hasError = true;
         }
 
-        if (phone == null || !phone.trim().matches("^(97|98)\\d{8}$")) {
+        if (!Validator.isValidPhone(phone)) {
             request.setAttribute("errorPhone", "Phone must be 10 digits starting with 97 or 98.");
             hasError = true;
         }
 
-        if (municipalityIdStr == null || municipalityIdStr.isEmpty()) {
+        if (!Validator.isNotNullOrEmpty(municipalityIdStr)) {
             request.setAttribute("errorMunicipality", "Please select your municipality.");
             hasError = true;
         }
 
         int wardNumber = 0;
-        if (wardNumberStr == null || wardNumberStr.isEmpty()) {
-            request.setAttribute("errorWard", "Please enter a valid ward number.");
+        if (!Validator.isValidWardNumber(wardNumberStr)) {
+            request.setAttribute("errorWard", "Ward number must be between 1 and 33.");
             hasError = true;
         } else {
-            try {
-                wardNumber = Integer.parseInt(wardNumberStr);
-                if (wardNumber < 1 || wardNumber > 33) {
-                    request.setAttribute("errorWard", "Ward number must be between 1 and 33.");
-                    hasError = true;
-                }
-            } catch (NumberFormatException e) {
-                request.setAttribute("errorWard", "Please enter a valid ward number.");
-                hasError = true;
-            }
+            wardNumber = Integer.parseInt(wardNumberStr);
         }
 
-        if (password == null || !password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$")) {
+        if (!Validator.isValidPassword(password)) {
             request.setAttribute("errorPassword",
                     "Password must be at least 8 characters with one uppercase letter, one lowercase letter, and one number.");
             hasError = true;
@@ -117,7 +109,7 @@ public class RegisterServlet extends HttpServlet {
 
         // Success flow
         int municipalityId = Integer.parseInt(municipalityIdStr);
-        String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt(12));
+        String passwordHash = PasswordUtil.hashPassword(password);
 
         Users newUser = new Users();
         newUser.setFullName(fullName.trim());
