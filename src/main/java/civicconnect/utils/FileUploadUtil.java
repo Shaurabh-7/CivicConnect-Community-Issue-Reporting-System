@@ -5,20 +5,25 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+/**
+ * Helper class to save uploaded files (like complaint evidence images) to the server disk.
+ */
 public class FileUploadUtil {
 
     /**
-     * Saves an uploaded file part to a specified directory and returns the relative path.
+     * Saves an uploaded image file on the server's disk storage and returns its relative file path.
+     * It generates a random unique name for each image to prevent overwriting older files.
+     * It also mirrors the file to the project's source directory in development so uploads are not lost during server restarts.
      *
-     * @param filePart       The file part from the HTTP request
-     * @param appRealPath    The real path of the web application (from ServletContext)
-     * @param uploadDirName  The relative directory name to store the file (e.g., "uploads/complaints")
-     * @return The relative path to the saved file (e.g., "uploads/complaints/xyz123.jpg"), or null if no file was uploaded
-     * @throws IOException If a file writing error occurs
+     * @param filePart       The file data container from the HTTP request.
+     * @param appRealPath    The absolute real directory path of the running web application on the server.
+     * @param uploadDirName  The relative directory folder name where files should be stored (e.g., "uploads/complaints").
+     * @return The relative web path to the saved file (e.g., "uploads/complaints/random-uuid.jpg"), or null if no file was uploaded.
+     * @throws IOException If there is an error writing the file to disk.
      */
     public static String saveImage(Part filePart, String appRealPath, String uploadDirName) throws IOException {
         if (filePart == null || filePart.getSize() == 0) {
-            return null; // No file uploaded
+            return null;
         }
 
         String submittedFileName = filePart.getSubmittedFileName();
@@ -26,14 +31,12 @@ public class FileUploadUtil {
             return null;
         }
 
-        // Create the absolute directory path
         String uploadPath = appRealPath + File.separator + uploadDirName;
         File uploadDir = new File(uploadPath);
         if (!uploadDir.exists()) {
-            uploadDir.mkdirs(); // Create directory if it doesn't exist
+            uploadDir.mkdirs();
         }
 
-        // Generate a unique file name to prevent overwriting
         String extension = "";
         int dotIndex = submittedFileName.lastIndexOf('.');
         if (dotIndex > 0) {
@@ -41,11 +44,9 @@ public class FileUploadUtil {
         }
         String uniqueFileName = UUID.randomUUID().toString() + extension;
 
-        // Save the file to deployed folder
         String absoluteFilePath = uploadPath + File.separator + uniqueFileName;
         filePart.write(absoluteFilePath);
 
-        // Also save to source directory in development so it survives restarts/wipes
         try {
             String sourceRealPath = appRealPath.replace("target" + File.separator + "CivicConnect-1.0-SNAPSHOT", "src" + File.separator + "main" + File.separator + "webapp");
             sourceRealPath = sourceRealPath.replace("target" + File.separator + "classes", "src" + File.separator + "main" + File.separator + "webapp");
@@ -62,10 +63,8 @@ public class FileUploadUtil {
                 );
             }
         } catch (Exception ignored) {
-            // Ignore if we can't write to source path
         }
 
-        // Return relative path for database storage
         return uploadDirName + "/" + uniqueFileName;
     }
 }

@@ -2,15 +2,19 @@ package civicconnect.utils;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+/**
+ * Handles secure password encryption and matching using BCrypt.
+ */
 public class PasswordUtil {
 
     private static final int WORK_FACTOR = 12;
 
     /**
-     * Hashes a plaintext password using BCrypt with a salt.
+     * Secures a plain-text password by encrypting it with BCrypt.
      *
-     * @param plainTextPassword The plaintext password
-     * @return The BCrypt hashed password
+     * @param plainTextPassword The raw password entered by the user.
+     * @return The encrypted (hashed) password string.
+     * @throws IllegalArgumentException If the given password is empty or null.
      */
     public static String hashPassword(String plainTextPassword) {
         if (plainTextPassword == null || plainTextPassword.isEmpty()) {
@@ -20,11 +24,12 @@ public class PasswordUtil {
     }
 
     /**
-     * Checks if a plaintext password matches a stored BCrypt hash.
+     * Compares a raw plain-text password against an encrypted password stored in the database.
+     * Used mainly during login to check if the password is correct.
      *
-     * @param plainTextPassword The plaintext password entered by the user
-     * @param storedHash        The BCrypt hash stored in the database
-     * @return true if the passwords match, false otherwise
+     * @param plainTextPassword The raw password entered by the user in the login form.
+     * @param storedHash        The encrypted password stored in the database.
+     * @return True if they match perfectly, false otherwise.
      */
     public static boolean checkPassword(String plainTextPassword, String storedHash) {
         if (plainTextPassword == null || storedHash == null || storedHash.isEmpty()) {
@@ -33,7 +38,6 @@ public class PasswordUtil {
         try {
             return BCrypt.checkpw(plainTextPassword, storedHash);
         } catch (IllegalArgumentException e) {
-            // This happens if storedHash is not a valid BCrypt hash
             return false;
         }
     }

@@ -95,7 +95,8 @@ public class Users {
     }
 
     public String getFormattedCreatedAt() {
-        if (createdAt == null) return "";
+        if (createdAt == null)
+            return "";
         java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return createdAt.format(dtf);
     }

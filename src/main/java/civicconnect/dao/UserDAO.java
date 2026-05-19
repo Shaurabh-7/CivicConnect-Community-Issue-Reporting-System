@@ -4,16 +4,26 @@ import civicconnect.daoInterface.userInterface;
 import civicconnect.model.Users;
 import civicconnect.dto.user.UserDTO;
 import civicconnect.utils.DBConnection;
-
 import civicconnect.utils.PasswordUtil;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.ArrayList;
 
+/**
+ * Handles all database operations for users.
+ * Allows user registration, profile updates, status changes, and fetching user lists.
+ */
 public class UserDAO implements userInterface {
 
+    /**
+     * Registers a new user (citizen, admin, or super admin) in the database.
+     *
+     * @param user The user object containing registration details.
+     * @return True if the registration was successful, false otherwise.
+     */
     @Override
     public boolean registerUser(Users user) {
         if (user.getFullName() == null || user.getFullName().trim().isEmpty() ||
@@ -55,6 +65,13 @@ public class UserDAO implements userInterface {
         }
     }
 
+    /**
+     * Finds a single user by their email address.
+     * Used mainly during login.
+     *
+     * @param email The email address to look for.
+     * @return The found Users object, or null if no user matches that email.
+     */
     @Override
     public Users getUserByEmail(String email) {
         String sql = "SELECT * FROM users WHERE email = ?";
@@ -74,6 +91,12 @@ public class UserDAO implements userInterface {
         return null;
     }
 
+    /**
+     * Finds a single user by their unique user ID.
+     *
+     * @param id The unique ID of the user.
+     * @return The found Users object, or null if no user matches that ID.
+     */
     @Override
     public Users getUserById(int id) {
         String sql = "SELECT * FROM users WHERE id = ?";
@@ -93,6 +116,12 @@ public class UserDAO implements userInterface {
         return null;
     }
 
+    /**
+     * Updates profile details for an existing user (such as full name, phone number, ward, and municipality).
+     *
+     * @param user The user object containing the new profile details.
+     * @return True if the profile was updated successfully, false otherwise.
+     */
     @Override
     public boolean updateUserProfile(Users user) {
         String sql = "UPDATE users SET full_name = ?, phone = ?, ward_number = ?, municipality_id = ? WHERE id = ?";
@@ -126,6 +155,13 @@ public class UserDAO implements userInterface {
         return false;
     }
 
+    /**
+     * Updates the password hash of a specific user.
+     *
+     * @param userId The unique ID of the user.
+     * @param newPasswordHash The new pre-hashed password.
+     * @return True if the password was changed successfully, false otherwise.
+     */
     @Override
     public boolean changePassword(int userId, String newPasswordHash) {
         String sql = "UPDATE users SET password_hash = ? WHERE id = ?";
@@ -145,6 +181,11 @@ public class UserDAO implements userInterface {
         return false;
     }
 
+    /**
+     * Gets a list of all registered users on the platform, ordered from newest to oldest.
+     *
+     * @return A list of all users, or an empty list if none are registered.
+     */
     @Override
     public ArrayList<Users> getAllUsers() {
         ArrayList<Users> users = new ArrayList<>();
@@ -163,6 +204,12 @@ public class UserDAO implements userInterface {
         return users;
     }
 
+    /**
+     * Gets all users that hold a specific platform role (such as "citizen" or "municipality_admin").
+     *
+     * @param role The role name to filter by.
+     * @return A list of users holding that role.
+     */
     @Override
     public ArrayList<Users> getUsersByRole(String role) {
         ArrayList<Users> users = new ArrayList<>();
@@ -183,6 +230,14 @@ public class UserDAO implements userInterface {
         return users;
     }
 
+    /**
+     * Updates the status (active or inactive) of a specific user.
+     * Used by municipality admins to deactivate offending users.
+     *
+     * @param userId The unique ID of the user.
+     * @param status The new status value ("active" or "inactive").
+     * @return True if successful, false otherwise.
+     */
     @Override
     public boolean updateUserStatus(int userId, String status) {
         String sql = "UPDATE users SET status = ? WHERE id = ?";
@@ -202,6 +257,12 @@ public class UserDAO implements userInterface {
         return false;
     }
 
+    /**
+     * Gets all registered citizens belonging to a specific municipality.
+     *
+     * @param municipalityId The unique ID of the municipality.
+     * @return A list of citizens belonging to that municipality.
+     */
     @Override
     public ArrayList<Users> getUsersByMunicipality(int municipalityId) {
         ArrayList<Users> users = new ArrayList<>();
@@ -222,6 +283,13 @@ public class UserDAO implements userInterface {
         return users;
     }
 
+    /**
+     * Searches for registered citizens within a municipality by their name, email, or phone.
+     *
+     * @param municipalityId The unique ID of the municipality.
+     * @param query The search text query.
+     * @return A list of citizens matching the search filters.
+     */
     @Override
     public ArrayList<Users> searchUsers(int municipalityId, String query) {
         ArrayList<Users> users = new ArrayList<>();
@@ -248,6 +316,11 @@ public class UserDAO implements userInterface {
         return users;
     }
 
+    /**
+     * Counts the total number of active municipality admins on the entire platform.
+     *
+     * @return The count of active admins, or 0 if none or on database error.
+     */
     @Override
     public int getActiveAdminsCount() {
         String sql = "SELECT COUNT(*) FROM users WHERE role = 'municipality_admin' AND status = 'active'";
@@ -263,6 +336,11 @@ public class UserDAO implements userInterface {
         return 0;
     }
 
+    /**
+     * Counts the total number of registered citizens on the platform.
+     *
+     * @return The count of citizens, or 0 if none or on database error.
+     */
     @Override
     public int getTotalCitizensCount() {
         String sql = "SELECT COUNT(*) FROM users WHERE role = 'citizen'";
@@ -278,6 +356,11 @@ public class UserDAO implements userInterface {
         return 0;
     }
 
+    /**
+     * Gets a list of all municipality admins, joining the municipalities table to display their assigned location.
+     *
+     * @return A list of admin UserDTOs, ordered from newest to oldest.
+     */
     @Override
     public ArrayList<UserDTO> getAllMunicipalityAdmins() {
         ArrayList<UserDTO> users = new ArrayList<>();
@@ -296,21 +379,10 @@ public class UserDAO implements userInterface {
         return users;
     }
 
-    private UserDTO mapResultSetToUserDTO(ResultSet rs) throws Exception {
-        UserDTO dto = new UserDTO();
-        dto.setId(rs.getInt("id"));
-        dto.setFullName(rs.getString("full_name"));
-        dto.setEmail(rs.getString("email"));
-        dto.setPhone(rs.getString("phone"));
-        dto.setRole(rs.getString("role"));
-        dto.setMunicipalityId((Integer) rs.getObject("municipality_id"));
-        dto.setMunicipalityName(rs.getString("municipality_name"));
-        dto.setWardNumber((Integer) rs.getObject("ward_number"));
-        dto.setStatus(rs.getString("status"));
-        dto.setCreatedAt(rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toLocalDateTime() : null);
-        return dto;
-    }
-
+    /**
+     * Automatically seeds a default Super Admin account (admin@gmail.com / Admin@123) if none exists.
+     * Runs at startup to guarantee access.
+     */
     public void seedDefaultAdmin() {
         String checkSql = "SELECT COUNT(*) FROM users WHERE role = 'super_admin'";
         try (Connection conn = DBConnection.getConnection();
@@ -325,7 +397,6 @@ public class UserDAO implements userInterface {
                     ips.setString(1, "System Administrator");
                     ips.setString(2, "admin@gmail.com");
                     ips.setString(3, "9800000000");
-                    // Hash for Admin@123
                     ips.setString(4, PasswordUtil.hashPassword("Admin@123"));
                     ips.setString(5, "super_admin");
                     ips.setString(6, "active");
@@ -338,6 +409,13 @@ public class UserDAO implements userInterface {
         }
     }
 
+    /**
+     * Helper method to convert a database row (ResultSet) into a Users model object.
+     *
+     * @param rs The ResultSet pointer at the current row.
+     * @return The fully populated Users object.
+     * @throws Exception If there is a database reading issue.
+     */
     private Users mapResultSetToUser(ResultSet rs) throws Exception {
         return new Users(
                 rs.getInt("id"),
@@ -351,5 +429,27 @@ public class UserDAO implements userInterface {
                 rs.getString("status"),
                 rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toLocalDateTime() : null
         );
+    }
+
+    /**
+     * Helper method to convert a database row (ResultSet) into a UserDTO object.
+     *
+     * @param rs The ResultSet pointer at the current row.
+     * @return The populated UserDTO object.
+     * @throws Exception If there is a database reading issue.
+     */
+    private UserDTO mapResultSetToUserDTO(ResultSet rs) throws Exception {
+        UserDTO dto = new UserDTO();
+        dto.setId(rs.getInt("id"));
+        dto.setFullName(rs.getString("full_name"));
+        dto.setEmail(rs.getString("email"));
+        dto.setPhone(rs.getString("phone"));
+        dto.setRole(rs.getString("role"));
+        dto.setMunicipalityId((Integer) rs.getObject("municipality_id"));
+        dto.setMunicipalityName(rs.getString("municipality_name"));
+        dto.setWardNumber((Integer) rs.getObject("ward_number"));
+        dto.setStatus(rs.getString("status"));
+        dto.setCreatedAt(rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toLocalDateTime() : null);
+        return dto;
     }
 }

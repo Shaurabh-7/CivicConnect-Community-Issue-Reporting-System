@@ -19,7 +19,8 @@ public class Complaint {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public Complaint() {}
+    public Complaint() {
+    }
 
     public int getId() {
         return id;
@@ -141,7 +142,8 @@ public class Complaint {
         this.updatedAt = updatedAt;
     }
 
-    public Complaint(int userId, int municipalityId, int categoryId, String title, String description, int wardNumber, String location, String imagePath, boolean isAnonymous, String contactEmail) {
+    public Complaint(int userId, int municipalityId, int categoryId, String title, String description, int wardNumber,
+            String location, String imagePath, boolean isAnonymous, String contactEmail) {
         this.userId = userId;
         this.municipalityId = municipalityId;
         this.categoryId = categoryId;
@@ -154,7 +156,9 @@ public class Complaint {
         this.contactEmail = contactEmail;
     }
 
-    public Complaint(int id, int userId, int municipalityId, int categoryId, String title, String description, int wardNumber, String location, String imagePath, boolean isAnonymous, String status, int voteCount, String contactEmail, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Complaint(int id, int userId, int municipalityId, int categoryId, String title, String description,
+            int wardNumber, String location, String imagePath, boolean isAnonymous, String status, int voteCount,
+            String contactEmail, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.userId = userId;
         this.municipalityId = municipalityId;

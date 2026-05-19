@@ -8,7 +8,8 @@ public class Votes {
     private int complaintId;
     private LocalDateTime createdAt;
 
-    public Votes() {}
+    public Votes() {
+    }
 
     public int getId() {
         return id;

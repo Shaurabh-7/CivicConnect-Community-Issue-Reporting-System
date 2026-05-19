@@ -9,8 +9,18 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+/**
+ * Handles all database operations for complaint categories.
+ * Allows adding, updating, deleting, and fetching categories.
+ */
 public class CategoryDAO implements categoryInterface {
 
+    /**
+     * Adds a new complaint category to the database.
+     *
+     * @param category The category object containing the name to add.
+     * @return True if the category was successfully added, false otherwise.
+     */
     @Override
     public boolean addCategory(Categories category) {
         String sql = "INSERT INTO categories (name, created_at) VALUES (?, NOW())";
@@ -27,6 +37,12 @@ public class CategoryDAO implements categoryInterface {
         }
     }
 
+    /**
+     * Updates the name of an existing category in the database.
+     *
+     * @param category The category object containing the new name and its ID.
+     * @return True if the update was successful, false otherwise.
+     */
     @Override
     public boolean updateCategory(Categories category) {
         String sql = "UPDATE categories SET name = ? WHERE id = ?";
@@ -44,6 +60,12 @@ public class CategoryDAO implements categoryInterface {
         }
     }
 
+    /**
+     * Permanently deletes a category from the database by its ID.
+     *
+     * @param id The unique ID of the category to delete.
+     * @return True if the category was deleted, false otherwise.
+     */
     @Override
     public boolean deleteCategory(int id) {
         String sql = "DELETE FROM categories WHERE id = ?";
@@ -60,6 +82,12 @@ public class CategoryDAO implements categoryInterface {
         }
     }
 
+    /**
+     * Finds a single category by its unique ID.
+     *
+     * @param id The unique ID of the category to look for.
+     * @return The found Categories object, or null if no category matches the ID.
+     */
     @Override
     public Categories getCategoryById(int id) {
         String sql = "SELECT * FROM categories WHERE id = ?";
@@ -78,6 +106,11 @@ public class CategoryDAO implements categoryInterface {
         return null;
     }
 
+    /**
+     * Gets a list of all registered complaint categories, sorted alphabetically by name.
+     *
+     * @return An ArrayList containing all the categories, or an empty list if none are found.
+     */
     @Override
     public ArrayList<Categories> getAllCategories() {
         ArrayList<Categories> list = new ArrayList<>();
@@ -95,6 +128,12 @@ public class CategoryDAO implements categoryInterface {
         return list;
     }
 
+    /**
+     * Counts the total number of categories saved in the system.
+     * This count is displayed on the super admin dashboard.
+     *
+     * @return The total count of categories, or 0 if a database error happens.
+     */
     @Override
     public int getTotalCategoriesCount() {
         String sql = "SELECT COUNT(*) FROM categories";
@@ -110,6 +149,13 @@ public class CategoryDAO implements categoryInterface {
         return 0;
     }
 
+    /**
+     * A helper method to convert a database row (ResultSet) into a Categories object.
+     *
+     * @param rs The ResultSet pointer at the current row.
+     * @return The fully populated Categories object.
+     * @throws Exception If there is an issue reading database columns.
+     */
     private Categories mapResultSetToCategory(ResultSet rs) throws Exception {
         return new Categories(
                 rs.getInt("id"),

@@ -10,8 +10,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+/**
+ * Handles all database operations for civic complaints.
+ * Allows citizens to submit and edit complaints, and allows admins to update status.
+ */
 public class ComplaintDAO implements complaintInterface {
 
+    /**
+     * Submits a new citizen complaint to the database.
+     * Sets the initial status to "pending" if no status is given.
+     *
+     * @param complaint The complaint object containing the issue details.
+     * @return True if the complaint was successfully submitted, false otherwise.
+     */
     @Override
     public boolean submitComplaint(Complaint complaint) {
         String sql = "INSERT INTO complaints (user_id, municipality_id, category_id, title, description, ward_number, location, image_path, is_anonymous, status, vote_count, contact_email, created_at, updated_at) " +
@@ -40,6 +51,12 @@ public class ComplaintDAO implements complaintInterface {
         }
     }
 
+    /**
+     * Updates an existing complaint with new details (like title, description, or location).
+     *
+     * @param complaint The complaint object containing the updated details.
+     * @return True if the complaint was successfully updated, false otherwise.
+     */
     @Override
     public boolean updateComplaint(Complaint complaint) {
         String sql = "UPDATE complaints SET category_id = ?, title = ?, description = ?, ward_number = ?, location = ?, image_path = ?, is_anonymous = ?, contact_email = ?, updated_at = NOW() WHERE id = ?";
@@ -64,6 +81,12 @@ public class ComplaintDAO implements complaintInterface {
         }
     }
 
+    /**
+     * Permanently deletes a complaint from the database.
+     *
+     * @param id The unique ID of the complaint to delete.
+     * @return True if the complaint was successfully deleted, false otherwise.
+     */
     @Override
     public boolean deleteComplaint(int id) {
         String sql = "DELETE FROM complaints WHERE id = ?";
@@ -80,6 +103,12 @@ public class ComplaintDAO implements complaintInterface {
         }
     }
 
+    /**
+     * Finds a single complaint by its unique ID.
+     *
+     * @param id The unique ID of the complaint to search for.
+     * @return The found Complaint object, or null if no complaint matches the ID.
+     */
     @Override
     public Complaint getComplaintById(int id) {
         String sql = "SELECT * FROM complaints WHERE id = ?";
@@ -98,6 +127,11 @@ public class ComplaintDAO implements complaintInterface {
         return null;
     }
 
+    /**
+     * Gets a list of all complaints submitted in the platform, ordered from newest to oldest.
+     *
+     * @return A list containing all complaints, or an empty list if none exist.
+     */
     @Override
     public ArrayList<Complaint> getAllComplaints() {
         ArrayList<Complaint> list = new ArrayList<>();
@@ -115,6 +149,12 @@ public class ComplaintDAO implements complaintInterface {
         return list;
     }
 
+    /**
+     * Gets a list of all complaints submitted by a specific citizen.
+     *
+     * @param userId The unique ID of the citizen.
+     * @return A list of complaints submitted by the citizen, or an empty list if none.
+     */
     @Override
     public ArrayList<Complaint> getComplaintsByUser(int userId) {
         ArrayList<Complaint> list = new ArrayList<>();
@@ -134,6 +174,12 @@ public class ComplaintDAO implements complaintInterface {
         return list;
     }
 
+    /**
+     * Gets a list of all complaints submitted within a specific municipality.
+     *
+     * @param municipalityId The unique ID of the municipality.
+     * @return A list of complaints from that municipality, or an empty list if none.
+     */
     @Override
     public ArrayList<Complaint> getComplaintsByMunicipality(int municipalityId) {
         ArrayList<Complaint> list = new ArrayList<>();
@@ -153,6 +199,12 @@ public class ComplaintDAO implements complaintInterface {
         return list;
     }
 
+    /**
+     * Gets all complaints that match a specific status (like "pending", "in_progress", or "resolved").
+     *
+     * @param status The status name to filter by.
+     * @return A list of complaints matching the status.
+     */
     @Override
     public ArrayList<Complaint> getComplaintsByStatus(String status) {
         ArrayList<Complaint> list = new ArrayList<>();
@@ -172,6 +224,13 @@ public class ComplaintDAO implements complaintInterface {
         return list;
     }
 
+    /**
+     * Updates the status of a specific complaint.
+     *
+     * @param id The unique ID of the complaint.
+     * @param status The new status value (such as "in_progress" or "resolved").
+     * @return True if the status was successfully updated, false otherwise.
+     */
     @Override
     public boolean updateComplaintStatus(int id, String status) {
         String sql = "UPDATE complaints SET status = ?, updated_at = NOW() WHERE id = ?";
@@ -189,6 +248,13 @@ public class ComplaintDAO implements complaintInterface {
         }
     }
 
+    /**
+     * Updates the vote count (upvotes) of a specific complaint by a set amount.
+     *
+     * @param id The unique ID of the complaint.
+     * @param increment The number of votes to add or subtract (usually 1 or -1).
+     * @return True if the vote count was successfully updated, false otherwise.
+     */
     @Override
     public boolean updateVoteCount(int id, int increment) {
         String sql = "UPDATE complaints SET vote_count = vote_count + ?, updated_at = NOW() WHERE id = ?";
@@ -206,6 +272,14 @@ public class ComplaintDAO implements complaintInterface {
         }
     }
 
+    /**
+     * Gets a list of recent complaints submitted by a citizen, limited to a maximum number.
+     * This method joins categories to retrieve the category name directly.
+     *
+     * @param userId The unique ID of the citizen.
+     * @param limit The maximum number of complaints to return.
+     * @return A list of recent complaint DTOs, or an empty list if none.
+     */
     @Override
     public ArrayList<ComplaintDTO> getRecentComplaintsByUser(int userId, int limit) {
         ArrayList<ComplaintDTO> list = new ArrayList<>();
@@ -228,6 +302,13 @@ public class ComplaintDAO implements complaintInterface {
         return list;
     }
 
+    /**
+     * Counts how many complaints a user has submitted that match a specific status.
+     *
+     * @param userId The unique ID of the citizen.
+     * @param status The status name to check.
+     * @return The count of complaints matching the criteria, or 0 if none or on error.
+     */
     @Override
     public int getComplaintsCountByUserAndStatus(int userId, String status) {
         String sql = "SELECT COUNT(*) FROM complaints WHERE user_id = ? AND status = ?";
@@ -247,6 +328,11 @@ public class ComplaintDAO implements complaintInterface {
         return 0;
     }
 
+    /**
+     * Counts all fully resolved complaints on the platform.
+     *
+     * @return The count of resolved complaints, or 0 if none or on database error.
+     */
     @Override
     public int getResolvedComplaintsCount() {
         String sql = "SELECT COUNT(*) FROM complaints WHERE status = 'resolved'";
@@ -258,6 +344,11 @@ public class ComplaintDAO implements complaintInterface {
         return 0;
     }
 
+    /**
+     * Counts all complaints that are currently in progress on the platform.
+     *
+     * @return The count of in-progress complaints, or 0 if none or on database error.
+     */
     @Override
     public int getInProgressComplaintsCount() {
         String sql = "SELECT COUNT(*) FROM complaints WHERE status = 'in_progress'";
@@ -269,6 +360,11 @@ public class ComplaintDAO implements complaintInterface {
         return 0;
     }
 
+    /**
+     * Counts the total number of complaints submitted on the entire platform.
+     *
+     * @return The total number of complaints, or 0 if none or on database error.
+     */
     @Override
     public int getTotalComplaintsCount() {
         String sql = "SELECT COUNT(*) FROM complaints";
@@ -284,6 +380,12 @@ public class ComplaintDAO implements complaintInterface {
         return 0;
     }
 
+    /**
+     * Counts the total number of complaints submitted by a single citizen.
+     *
+     * @param userId The unique ID of the citizen.
+     * @return The total count of complaints, or 0 if none or on database error.
+     */
     @Override
     public int getTotalComplaintsCountByUser(int userId) {
         String sql = "SELECT COUNT(*) FROM complaints WHERE user_id = ?";
@@ -302,6 +404,15 @@ public class ComplaintDAO implements complaintInterface {
         return 0;
     }
 
+    /**
+     * Gets a list of complaints submitted by a citizen, matching custom filters like status, category, and search text.
+     *
+     * @param userId The unique ID of the citizen.
+     * @param status The status filter (or "all").
+     * @param categoryId The category ID filter (or 0 for all).
+     * @param searchQuery The search text query (checks title and description).
+     * @return A list of matching complaint DTOs, or an empty list if none.
+     */
     @Override
     public ArrayList<ComplaintDTO> getFilteredComplaintsByUser(int userId, String status, Integer categoryId, String searchQuery) {
         ArrayList<ComplaintDTO> list = new ArrayList<>();
@@ -349,6 +460,12 @@ public class ComplaintDAO implements complaintInterface {
         return list;
     }
 
+    /**
+     * Gets a single complaint details by its ID, joining categories and users to fetch names.
+     *
+     * @param id The unique ID of the complaint.
+     * @return The fully populated ComplaintDTO object, or null if not found.
+     */
     @Override
     public ComplaintDTO getComplaintDTOById(int id) {
         String sql = "SELECT c.*, cat.name as category_name, u.full_name as user_name FROM complaints c " +
@@ -374,6 +491,17 @@ public class ComplaintDAO implements complaintInterface {
         return null;
     }
 
+    /**
+     * Gets a list of complaints in a municipality matching filters, with custom sorting (newest first, or by votes).
+     * Used mainly to power the public homepage feed.
+     *
+     * @param municipalityId The ID of the municipality, or 0 to get all complaints.
+     * @param status The status filter (or "all").
+     * @param categoryId The category ID filter (or 0 for all).
+     * @param searchQuery The search text query.
+     * @param sortBy The sorting mode ("trending" or "latest").
+     * @return A list of matching complaint DTOs, or an empty list if none.
+     */
     @Override
     public ArrayList<ComplaintDTO> getPublicComplaintsByMunicipality(int municipalityId, String status, Integer categoryId, String searchQuery, String sortBy) {
         ArrayList<ComplaintDTO> list = new ArrayList<>();
@@ -436,6 +564,14 @@ public class ComplaintDAO implements complaintInterface {
         return list;
     }
 
+    /**
+     * Gets a list of complaints in a municipality that have the highest number of upvotes.
+     * Used to show top-supported items in dashboards.
+     *
+     * @param municipalityId The unique ID of the municipality.
+     * @param limit The maximum number of items to return.
+     * @return A list of top supported complaints, or an empty list if none.
+     */
     @Override
     public ArrayList<ComplaintDTO> getTopSupportedComplaints(int municipalityId, int limit) {
         ArrayList<ComplaintDTO> list = new ArrayList<>();
@@ -455,6 +591,13 @@ public class ComplaintDAO implements complaintInterface {
         return list;
     }
 
+    /**
+     * Helper method to convert a database row (ResultSet) into a Complaint model object.
+     *
+     * @param rs The ResultSet pointer at the current row.
+     * @return The fully populated Complaint object.
+     * @throws Exception If there is a database reading issue.
+     */
     private Complaint mapResultSetToComplaint(ResultSet rs) throws Exception {
         return new Complaint(
                 rs.getInt("id"),
@@ -475,6 +618,13 @@ public class ComplaintDAO implements complaintInterface {
         );
     }
 
+    /**
+     * Helper method to convert a database row (ResultSet) into a ComplaintDTO object.
+     *
+     * @param rs The ResultSet pointer at the current row.
+     * @return The populated ComplaintDTO object.
+     * @throws Exception If there is a database reading issue.
+     */
     private ComplaintDTO mapResultSetToComplaintDTO(ResultSet rs) throws Exception {
         ComplaintDTO dto = new ComplaintDTO();
         dto.setId(rs.getInt("id"));
