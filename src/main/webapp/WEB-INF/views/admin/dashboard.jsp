@@ -80,7 +80,7 @@
             </div>
             <div class="admin-stat-card card-border-red">
                 <span class="admin-stat-label">NEW THIS WEEK</span>
-                <span class="admin-stat-value">18</span>
+                <span class="admin-stat-value"><c:out value="${newThisWeek}" /></span>
                 <span class="admin-stat-subtext">Complaints received</span>
             </div>
         </section>

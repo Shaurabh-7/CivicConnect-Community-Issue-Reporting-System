@@ -74,6 +74,15 @@ public class AdminDashboardServlet extends HttpServlet {
         // Top 5 most supported complaints
         ArrayList<ComplaintDTO> topSupported = complaintDAO.getTopSupportedComplaints(municipalityId, 5);
 
+        // Calculate new complaints this week (last 7 days) using standard loop style
+        java.time.LocalDateTime sevenDaysAgo = java.time.LocalDateTime.now().minusDays(7);
+        long newThisWeek = 0;
+        for (Complaint c : allComplaints) {
+            if (c.getCreatedAt() != null && c.getCreatedAt().isAfter(sevenDaysAgo)) {
+                newThisWeek++;
+            }
+        }
+
         // Set attributes for JSP
         request.setAttribute("totalComplaints", totalComplaints);
         request.setAttribute("pendingCount", pendingCount);
@@ -81,6 +90,7 @@ public class AdminDashboardServlet extends HttpServlet {
         request.setAttribute("resolvedCount", resolvedCount);
         request.setAttribute("totalCitizens", totalCitizens);
         request.setAttribute("totalVotes", totalVotes);
+        request.setAttribute("newThisWeek", newThisWeek);
         
         request.setAttribute("latestComplaints", latest10);
         request.setAttribute("topSupported", topSupported);
