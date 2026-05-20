@@ -33,6 +33,17 @@
                 </div>
             </div>
 
+            <% if (request.getParameter("success") != null) { %>
+                <div class="alert alert-success" style="margin-bottom: 1.5rem;">
+                    <%= request.getParameter("success") %>
+                </div>
+            <% } %>
+            <% if (request.getParameter("error") != null) { %>
+                <div class="alert alert-danger" style="margin-bottom: 1.5rem;">
+                    <%= request.getParameter("error") %>
+                </div>
+            <% } %>
+
             <div class="content-card">
                 <div class="card-header">
                     <h3>All Categories</h3>
@@ -62,9 +73,15 @@
                                             <a href="<%= request.getContextPath() %>/superadmin/categories?action=edit&id=<%= c.getId() %>" class="btn-icon" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="#" class="btn-icon btn-icon-danger" title="Delete">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form action="<%= request.getContextPath() %>/superadmin/categories" method="POST"
+                                                  style="display: inline; margin: 0;"
+                                                  onsubmit="return confirm('Delete this category?');">
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="id" value="<%= c.getId() %>">
+                                                <button type="submit" class="btn-icon btn-icon-danger" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>

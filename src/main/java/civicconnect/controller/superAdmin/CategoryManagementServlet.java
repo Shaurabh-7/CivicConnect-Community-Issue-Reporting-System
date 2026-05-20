@@ -69,6 +69,15 @@ public class CategoryManagementServlet extends HttpServlet {
                 request.setAttribute("errorMessage", "Failed to update category.");
                 request.getRequestDispatcher("/WEB-INF/views/superadmin/category-form.jsp").forward(request, response);
             }
+        } else if ("delete".equals(action)) {
+            int id = Integer.parseInt(request.getParameter("id"));
+            boolean success = categoryDAO.deleteCategory(id);
+            if (success) {
+                response.sendRedirect(request.getContextPath() + "/superadmin/categories?success=Category+deleted");
+            } else {
+                response.sendRedirect(request.getContextPath()
+                        + "/superadmin/categories?error=Could+not+delete+category.+It+may+still+be+used+by+complaints.");
+            }
         }
     }
 }
